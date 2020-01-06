@@ -34,8 +34,12 @@ flags.DEFINE_string(
     "This specifies the model architecture.")
 
 flags.DEFINE_string(
-    "input_file", None,
-    "Input TF example files (can be a glob or comma separated).")
+    "train_input_file", None,
+    "Training input TF example files (can be a glob or comma separated).")
+
+flags.DEFINE_string(
+    "valid_input_file", None,
+    "validation input TF example files (can be a glob or comma separated).")
 
 flags.DEFINE_string(
     "output_dir", None,
@@ -413,12 +417,20 @@ def main(_):
 
   tf.gfile.MakeDirs(FLAGS.output_dir)
 
-  input_files = []
-  for input_pattern in FLAGS.input_file.split(","):
-    input_files.extend(tf.gfile.Glob(input_pattern))
+  train_input_files = []
+  for input_pattern in FLAGS.train_input_file.split(","):
+    train_input_files.extend(tf.gfile.Glob(input_pattern))
 
-  tf.logging.info("*** Input Files ***")
-  for input_file in input_files:
+  valid_input_files = []
+  for input_pattern in FLAGS.valid_input_file.split(","):
+    valid_input_files.extend(tf.gfile.Glob(input_pattern))
+
+  tf.logging.info("*** Train Input Files ***")
+  for input_file in train_input_files:
+    tf.logging.info("  %s" % input_file)
+
+  tf.logging.info("*** Validation Input Files ***")
+  for input_file in valid_input_files:
     tf.logging.info("  %s" % input_file)
 
   tpu_cluster_resolver = None
@@ -427,6 +439,7 @@ def main(_):
         FLAGS.tpu_name, zone=FLAGS.tpu_zone, project=FLAGS.gcp_project)
 
   is_per_host = tf.contrib.tpu.InputPipelineConfig.PER_HOST_V2
+  
   run_config = tf.contrib.tpu.RunConfig(
       cluster=tpu_cluster_resolver,
       master=FLAGS.master,
@@ -455,22 +468,24 @@ def main(_):
       train_batch_size=FLAGS.train_batch_size,
       eval_batch_size=FLAGS.eval_batch_size)
 
+
   if FLAGS.do_train:
     tf.logging.info("***** Running training *****")
     tf.logging.info("  Batch size = %d", FLAGS.train_batch_size)
     train_input_fn = input_fn_builder(
-        input_files=input_files,
+        input_files=train_input_files,
         max_seq_length=FLAGS.max_seq_length,
         max_predictions_per_seq=FLAGS.max_predictions_per_seq,
         is_training=True)
-    estimator.train(input_fn=train_input_fn, max_steps=FLAGS.num_train_steps)
 
+    estimator.train(input_fn=train_input_fn, max_steps=FLAGS.num_train_steps)
+    
   if FLAGS.do_eval:
     tf.logging.info("***** Running evaluation *****")
     tf.logging.info("  Batch size = %d", FLAGS.eval_batch_size)
 
     eval_input_fn = input_fn_builder(
-        input_files=input_files,
+        input_files=valid_input_files,
         max_seq_length=FLAGS.max_seq_length,
         max_predictions_per_seq=FLAGS.max_predictions_per_seq,
         is_training=False)
@@ -487,7 +502,8 @@ def main(_):
 
 
 if __name__ == "__main__":
-  flags.mark_flag_as_required("input_file")
+  flags.mark_flag_as_required("train_input_file")
+  flags.mark_flag_as_required("valid_input_file")
   flags.mark_flag_as_required("bert_config_file")
   flags.mark_flag_as_required("output_dir")
   tf.app.run()
