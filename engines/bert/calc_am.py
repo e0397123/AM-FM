@@ -39,7 +39,7 @@ if __name__=='__main__':
             # all-layer-mean-max-pooling
             obj_emb = []
             for token in obj['features']:
-            	temp = np.max(np.array([token['layers'][0]['values'], token['layers'][1]['values'], 
+            	temp = np.mean(np.array([token['layers'][0]['values'], token['layers'][1]['values'], 
             	token['layers'][2]['values'], token['layers'][3]['values']], dtype='float32'), axis=0)
             	obj_emb.append(temp)
             obj_emb = np.array(obj_emb)
@@ -75,10 +75,10 @@ if __name__=='__main__':
             # obj_emb = np.array([token['layers'][0]['values'] + token['layers'][1]['values'] \
             #  + token['layers'][2]['values'] + token['layers'][3]['values'] for token in obj['features']], dtype='float32')
             # obj_emb = np.mean(obj_emb, axis=0)
-            all-layer-mean-max-pooling
+            # all-layer-mean-max-pooling
             obj_emb = []
             for token in obj['features']:
-            	temp = np.max(np.array([token['layers'][0]['values'], token['layers'][1]['values'], 
+            	temp = np.mean(np.array([token['layers'][0]['values'], token['layers'][1]['values'], 
             	token['layers'][2]['values'], token['layers'][3]['values']], dtype='float32'), axis=0)
             	obj_emb.append(temp)
             obj_emb = np.array(obj_emb)
