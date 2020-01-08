@@ -570,17 +570,16 @@ if __name__=='__main__':
     single_dialogue = []
     for line in tqdm(train_lines):
         if line.strip():
-            single_dialogue.append(line.strip())
+            single_dialogue.append(line.strip()[3:])
         else:
             train_dialogues.append(single_dialogue)
             single_dialogue = []
     selected_dialogues = random.choices(train_dialogues, k=args.data_size)
     selected_lines = []
     for dialogue in tqdm(selected_dialogues):
-        selected_lines.extend(dialogue)
-        selected_lines.append('')    
+        selected_lines.append(' '.join(dialogue))
     logging.info("----------------step 1. chatword conversion----- --------------------")
-    selected_lines = [chat_words_conversion(text[3:]) if text else '' for text in tqdm(selected_lines)]
+    selected_lines = [chat_words_conversion(text) if text else '' for text in tqdm(selected_lines)]
     logging.info("----------------step 2. emoji replacement ---------------------------")
     selected_lines = [convert_emojis(text) if text else '' for text in tqdm(selected_lines)]
     logging.info("----------------step 3. emoticon replacement --------------------------")
@@ -593,15 +592,26 @@ if __name__=='__main__':
         wf.truncate()
     for item in tqdm(selected_lines):
         with codecs.open(args.train_output, encoding='utf-8', mode='a') as wf:
-            wf.write(item + '\n')
+            wf.write(item + '\n')        
     logging.info("----------------Done processing training set ------------------------")
 
 
     logging.info("----------------procesing valid set ---------------------------------")
     with codecs.open(args.valid_file, encoding='utf-8', mode='r') as rf:
         valid_lines = rf.readlines() 
+    valid_dialogues = []
+    single_dialogue = []
+    for line in tqdm(valid_lines):
+        if line.strip():
+            single_dialogue.append(line.strip()[3:])
+        else:
+            valid_dialogues.append(single_dialogue)
+            single_dialogue = []
+    selected_lines = []
+    for dialogue in tqdm(valid_dialogues):
+        selected_lines.append(' '.join(dialogue))
     logging.info("----------------step 1. chatword conversion----- --------------------")
-    valid_lines = [chat_words_conversion(text.strip()[3:]) if text else '' for text in tqdm(valid_lines)]
+    valid_lines = [chat_words_conversion(text) if text else '' for text in tqdm(valid_lines)]
     logging.info("----------------step 2. emoji replacement ---------------------------")
     valid_lines = [convert_emojis(text) if text else '' for text in tqdm(valid_lines)]
     logging.info("----------------step 3. emoticon replacement --------------------------")
@@ -612,9 +622,10 @@ if __name__=='__main__':
     logging.info("----------------step 5. write data to file  -------------------------")
     with codecs.open(args.valid_output, encoding='utf-8', mode='w') as wf:
         wf.truncate()
+    temp_line = []
     for item in tqdm(valid_lines):
         with codecs.open(args.valid_output, encoding='utf-8', mode='a') as wf:
-             wf.write(item + '\n')           
+            wf.write(item + '\n')
     logging.info("----------------Done processing training set ------------------------")
 
 

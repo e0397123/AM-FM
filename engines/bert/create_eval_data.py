@@ -1,23 +1,22 @@
 import codecs
 import argparse
 import logging
-import random
 import emoji
 import re
 import string
 from tqdm import tqdm
 
-random.seed(1234)
 
 logging.basicConfig(level=logging.DEBUG,
                     format='%(asctime)s - %(filename)s[line:%(lineno)d] - %(levelname)s: %(message)s')
 
 parser = argparse.ArgumentParser()
-parser.add_argument("--train_file", type=str, help="path to training file")
-parser.add_argument("--valid_file", type=str, help="path to validation file")
-parser.add_argument("--train_output", type=str, help="path to clean training output file")
-parser.add_argument("--valid_output", type=str, help="path to clean valid output file")
-parser.add_argument("--data_size", type=int, help="training data size")
+parser.add_argument("--hyp_file", type=str, help="path to hypothesis file")
+parser.add_argument("--ref_file", type=str, help="path to reference file")
+parser.add_argument("--context_file", type=str, help="path to context file")
+parser.add_argument("--hyp_output", type=str, help="path to clean hypothesis output file")
+parser.add_argument("--ref_output", type=str, help="path to clean reference output file")
+parser.add_argument("--context_output", type=str, help="path to clean context output file")
 args = parser.parse_args()
 
 EMOTICONS = {
@@ -562,58 +561,64 @@ def convert_emoticons(text):
 	
 
 if __name__=='__main__':
-    logging.info("----------------procesing training set ------------------------------")
-    with codecs.open(args.train_file, encoding='utf-8', mode='r') as rf:
-        train_lines = rf.readlines()
-    logging.info("----------------select training set ---------------------------------")
-    train_dialogues = []
-    single_dialogue = []
-    for line in tqdm(train_lines):
-        if line.strip():
-            single_dialogue.append(line.strip())
-        else:
-            train_dialogues.append(single_dialogue)
-            single_dialogue = []
-    selected_dialogues = random.choices(train_dialogues, k=args.data_size)
-    selected_lines = []
-    for dialogue in tqdm(selected_dialogues):
-        selected_lines.extend(dialogue)
-        selected_lines.append('')    
-    logging.info("----------------step 1. chatword conversion----- --------------------")
-    selected_lines = [chat_words_conversion(text[3:]) if text else '' for text in tqdm(selected_lines)]
-    logging.info("----------------step 2. emoji replacement ---------------------------")
-    selected_lines = [convert_emojis(text) if text else '' for text in tqdm(selected_lines)]
-    logging.info("----------------step 3. emoticon replacement --------------------------")
-    selected_lines = [convert_emoticons(text) if text else '' for text in tqdm(selected_lines)]
-    logging.info("----------------step 4. text cleaning ------------------------------")    
-    selected_lines = [re.sub(r'\s\'','\'', text) if text else '' for text in selected_lines]
-    selected_lines = [re.sub(r'[^\x00-\x7f]', '', text) if text else '' for text in selected_lines]
-    logging.info("----------------step 5. write data to file  -------------------------")
-    with codecs.open(args.train_output, encoding='utf-8', mode='w') as wf:
-        wf.truncate()
-    for item in tqdm(selected_lines):
-        with codecs.open(args.train_output, encoding='utf-8', mode='a') as wf:
-            wf.write(item + '\n')
-    logging.info("----------------Done processing training set ------------------------")
+    # logging.info("----------------procesing hypothesis set ------------------------------")
+    # with codecs.open(args.hyp_file, encoding='utf-8', mode='r') as rf:
+    #     hyp_lines = rf.readlines()
+    # logging.info("----------------step 1. chatword conversion----- --------------------")
+    # selected_lines = [chat_words_conversion(text.strip()) for text in tqdm(hyp_lines)]
+    # logging.info("----------------step 2. emoji replacement ---------------------------")
+    # selected_lines = [convert_emojis(text) for text in tqdm(selected_lines)]
+    # logging.info("----------------step 3. emoticon replacement --------------------------")
+    # selected_lines = [convert_emoticons(text) for text in tqdm(selected_lines)]
+    # logging.info("----------------step 4. text cleaning ------------------------------")    
+    # selected_lines = [re.sub(r'\s\'','\'', text) for text in selected_lines]
+    # selected_lines = [re.sub(r'[^\x00-\x7f]', '', text) for text in selected_lines]
+    # logging.info("----------------step 5. write data to file  -------------------------")
+    # with codecs.open(args.hyp_output, encoding='utf-8', mode='w') as wf:
+    #     wf.truncate()
+    # for item in tqdm(selected_lines):
+    #     with codecs.open(args.hyp_output, encoding='utf-8', mode='a') as wf:
+    #         wf.write(item + '\n')
+    # logging.info("----------------Done processing hypothesis set ------------------------")
 
 
-    logging.info("----------------procesing valid set ---------------------------------")
-    with codecs.open(args.valid_file, encoding='utf-8', mode='r') as rf:
-        valid_lines = rf.readlines() 
+    # logging.info("----------------procesing reference set ---------------------------------")
+    # with codecs.open(args.ref_file, encoding='utf-8', mode='r') as rf:
+    #     ref_lines = rf.readlines() 
+    # logging.info("----------------step 1. chatword conversion----- --------------------")
+    # ref_lines = [chat_words_conversion(text.strip()) for text in tqdm(ref_lines)]
+    # logging.info("----------------step 2. emoji replacement ---------------------------")
+    # ref_lines = [convert_emojis(text) for text in tqdm(ref_lines)]
+    # logging.info("----------------step 3. emoticon replacement --------------------------")
+    # ref_lines = [convert_emoticons(text) for text in tqdm(ref_lines)]
+    # logging.info("----------------step 4. text cleaning ------------------------------")    
+    # ref_lines = [re.sub(r'\s\'','\'', text) for text in ref_lines]
+    # ref_lines = [re.sub(r'[^\x00-\x7f]', '', text) for text in ref_lines]
+    # logging.info("----------------step 5. write data to file  -------------------------")
+    # with codecs.open(args.ref_output, encoding='utf-8', mode='w') as wf:
+    #     wf.truncate()
+    # for item in tqdm(ref_lines):
+    #     with codecs.open(args.ref_output, encoding='utf-8', mode='a') as wf:
+    #          wf.write(item + '\n')           
+    # logging.info("----------------Done processing training set ------------------------")
+
+    logging.info("----------------procesing context set ---------------------------------")
+    with codecs.open(args.context_file, encoding='utf-8', mode='r') as rf:
+        context_lines = rf.readlines() 
     logging.info("----------------step 1. chatword conversion----- --------------------")
-    valid_lines = [chat_words_conversion(text.strip()[3:]) if text else '' for text in tqdm(valid_lines)]
+    context_lines = [chat_words_conversion(text.strip()[3:]) for text in tqdm(context_lines)]
     logging.info("----------------step 2. emoji replacement ---------------------------")
-    valid_lines = [convert_emojis(text) if text else '' for text in tqdm(valid_lines)]
+    context_lines = [convert_emojis(text) for text in tqdm(context_lines)]
     logging.info("----------------step 3. emoticon replacement --------------------------")
-    valid_lines = [convert_emoticons(text) if text else '' for text in tqdm(valid_lines)]
+    context_lines = [convert_emoticons(text) for text in tqdm(context_lines)]
     logging.info("----------------step 4. text cleaning ------------------------------")    
-    valid_lines = [re.sub(r'\s\'','\'', text) if text else '' for text in valid_lines]
-    valid_lines = [re.sub(r'[^\x00-\x7f]', '', text) if text else '' for text in valid_lines]
+    context_lines = [re.sub(r'\s\'','\'', text) for text in context_lines]
+    context_lines = [re.sub(r'[^\x00-\x7f]', '', text) for text in context_lines]
     logging.info("----------------step 5. write data to file  -------------------------")
-    with codecs.open(args.valid_output, encoding='utf-8', mode='w') as wf:
+    with codecs.open(args.context_output, encoding='utf-8', mode='w') as wf:
         wf.truncate()
-    for item in tqdm(valid_lines):
-        with codecs.open(args.valid_output, encoding='utf-8', mode='a') as wf:
+    for item in tqdm(context_lines):
+        with codecs.open(args.context_output, encoding='utf-8', mode='a') as wf:
              wf.write(item + '\n')           
     logging.info("----------------Done processing training set ------------------------")
 

@@ -131,4 +131,4 @@ dmypy.json
 data/
 engines/bert/__pycache__/
 engines/bert/models
-
+engines/rnnlm/models
