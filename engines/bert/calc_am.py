@@ -20,6 +20,11 @@ def calc_am_batch(hyp_list, ref_list):
     score_mat = cosine_similarity(np.array(hyp_list), np.array(ref_list))
     score_mat = np.amax(score_mat, axis=1).T
     return score_mat
+
+def absmaxND(a, axis=None):
+    amax = a.max(axis)
+    amin = a.min(axis)
+    return np.where(-amin > amax, amin, amax)
     
 
 if __name__=='__main__':
@@ -31,23 +36,26 @@ if __name__=='__main__':
         for obj in reader:
             # # top layer mean pooling
             # obj_emb = np.array([token['layers'][0]['values'] for token in obj['features']], dtype='float32')
-            # obj_emb = np.mean(obj_emb, axis=0)
-            # # all-layer-concat-mean-pooling
-            # obj_emb = np.array([token['layers'][0]['values']+ token['layers'][1]['values'] \
-            #  + token['layers'][2]['values'] + token['layers'][3]['values'] for token in obj['features']], dtype='float32')
-            # obj_emb = np.mean(obj_emb, axis=0)
-            # all-layer-mean-max-pooling
-            obj_emb = []
-            for token in obj['features']:
-            	temp = np.mean(np.array([token['layers'][0]['values'], token['layers'][1]['values'], 
-            	token['layers'][2]['values'], token['layers'][3]['values']], dtype='float32'), axis=0)
-            	obj_emb.append(temp)
-            obj_emb = np.array(obj_emb)
-            obj_emb = np.max(obj_emb, axis=0)
+            # obj_emb = np.max(obj_emb, axis=0)
+            # all-layer-concat-mean-pooling
+            obj_emb = np.array([token['layers'][0]['values']+ token['layers'][1]['values'] \
+             + token['layers'][2]['values'] + token['layers'][3]['values'] for token in obj['features']], dtype='float32')
+            obj_emb = np.mean(obj_emb, axis=0)
+            # # all-layer-mean-max-pooling
+            # obj_emb = []
+            # for token in obj['features']:
+            # 	temp = np.mean(np.array([token['layers'][0]['values'], token['layers'][1]['values'], 
+            # 	token['layers'][2]['values'], token['layers'][3]['values']], dtype='float32'), axis=0)
+            # 	obj_emb.append(temp)
+            # obj_emb = np.array(obj_emb)
+            # obj_emb = np.max(obj_emb, axis=0)
             # # all-layer-concat-max-pooling
             # obj_emb = np.array([token['layers'][0]['values'] + token['layers'][1]['values'] + 
             #     token['layers'][2]['values'] + token['layers'][3]['values'] for token in obj['features']], dtype='float32')
-            # obj_emb = np.max(obj_emb, axis=0)
+            # obj_emb = absmaxND(obj_emb, axis=0)
+            # # top-layer-vector-extrema
+            # obj_emb = np.array([token['layers'][0]['values'] for token in obj['features']], dtype='float32')
+            # obj_emb = absmaxND(obj_emb, axis=0)
             # all-layer-add-max-pooling
             # obj_emb = []
             # for token in obj['features']:
@@ -68,26 +76,29 @@ if __name__=='__main__':
     tq = tqdm(total=22000)
     with jsonlines.open(args.ref_file) as reader:
         for obj in reader:
-            # # top layer mean pooling
+            # top layer mean pooling
             # obj_emb = np.array([token['layers'][0]['values'] for token in obj['features']], dtype='float32')
-            # obj_emb = np.mean(obj_emb, axis=0)
-            # # all-layer-concat-mean-pooling
-            # obj_emb = np.array([token['layers'][0]['values'] + token['layers'][1]['values'] \
-            #  + token['layers'][2]['values'] + token['layers'][3]['values'] for token in obj['features']], dtype='float32')
-            # obj_emb = np.mean(obj_emb, axis=0)
-            # all-layer-mean-max-pooling
-            obj_emb = []
-            for token in obj['features']:
-            	temp = np.mean(np.array([token['layers'][0]['values'], token['layers'][1]['values'], 
-            	token['layers'][2]['values'], token['layers'][3]['values']], dtype='float32'), axis=0)
-            	obj_emb.append(temp)
-            obj_emb = np.array(obj_emb)
-            obj_emb = np.max(obj_emb, axis=0)
+            # obj_emb = np.max(obj_emb, axis=0)
+            # all-layer-concat-mean-pooling
+            obj_emb = np.array([token['layers'][0]['values'] + token['layers'][1]['values'] \
+             + token['layers'][2]['values'] + token['layers'][3]['values'] for token in obj['features']], dtype='float32')
+            obj_emb = np.mean(obj_emb, axis=0)
+            # # all-layer-mean-max-pooling
+            # obj_emb = []
+            # for token in obj['features']:
+            # 	temp = np.mean(np.array([token['layers'][0]['values'], token['layers'][1]['values'], 
+            # 	token['layers'][2]['values'], token['layers'][3]['values']], dtype='float32'), axis=0)
+            # 	obj_emb.append(temp)
+            # obj_emb = np.array(obj_emb)
+            # obj_emb = np.max(obj_emb, axis=0)
             # # all-layer-concat-max-pooling
             # obj_emb = np.array([token['layers'][0]['values'] + token['layers'][1]['values'] + 
             #     token['layers'][2]['values'] + token['layers'][3]['values'] for token in obj['features']], dtype='float32')
-            # obj_emb = np.max(obj_emb, axis=0)
-            # all-layer-concat-max-pooling
+            # obj_emb = absmaxND(obj_emb, axis=0)
+            # top-layer-vector-extrema
+            # obj_emb = np.array([token['layers'][0]['values'] for token in obj['features']], dtype='float32')
+            # obj_emb = absmaxND(obj_emb, axis=0)
+            ## all-layer-concat-max-pooling
             # obj_emb = []
             # for token in obj['features']:
             #     temp = np.array([token['layers'][0]['values'], token['layers'][1]['values'], 

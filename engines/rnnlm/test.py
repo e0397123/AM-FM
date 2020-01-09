@@ -1,3 +1,6 @@
+#!/usr/bin/python
+# Author: Clara Vania
+
 import numpy as np
 import tensorflow as tf
 import argparse
@@ -34,18 +37,18 @@ def run_epoch(session, m, data, data_loader, eval_op):
 
 def test(test_args):
     start = time.time()
-    with open(os.path.join(test_args.save_dir, 'config.pkl')) as f:
+    with open(os.path.join(test_args.save_dir, 'config.pkl'), 'rb') as f:
         args = cPickle.load(f)
     data_loader = TextLoader(args, train=False)
     test_data = data_loader.read_dataset(test_args.test_file)
 
     args.word_vocab_size = data_loader.word_vocab_size
-    print "Word vocab size: " + str(data_loader.word_vocab_size) + "\n"
+    print("Word vocab size: " + str(data_loader.word_vocab_size) + "\n")
 
     # Model
     lm_model = WordLM
 
-    print "Begin testing..."
+    print("Begin testing...")
     # If using gpu:
     # gpu_options = tf.GPUOptions(per_process_gpu_memory_fraction=0.9)
     # gpu_config = tf.ConfigProto(log_device_placement=False, gpu_options=gpu_options)

@@ -6,26 +6,47 @@
 #  --valid_file data/twitter/valid.txt \
 #  --train_output data/twitter/train_rnnlm_100k.txt \
 #  --valid_output data/twitter/valid_rnnlm.txt \
-#  --data_size 100000
+#  --data_size 10000
 #
 
 # step 2:
-#spm_train --input=data/twitter/train_rnnlm_100k.txt --model_prefix=data/twitter/sp_100k --vocab_size=20000 --character_coverage=1.0 --model_type=bpe
+# spm_train --input=data/twitter/train_clean_1M.txt --model_prefix=data/twitter/sp_1m --vocab_size=32000 --character_coverage=0.995 --model_type=bpe
 
 
 # step 3:
 
-CUDA_VISIBLE_DEVICES=0 python engines/rnnl/train.py \
-	--train_file ../../data/twitter/train_rnnlm_10k.txt \
-	--dev_file ../../data/twitter/valid_rnnlm.txt \
-	--tokenizer_path ../../data/twitter/sp_10k.model \
+#CUDA_VISIBLE_DEVICES=1 python engines/rnnlm/train.py \
+#	--train_file data/twitter/train_rnnlm_20k.txt \
+#	--dev_file data/twitter/valid_rnnlm.txt \
+#	--tokenizer_path data/twitter/sp_20k.model \
+#	--output train.log \
+#	--save_dir engines/rnnlm/models-20-rnn-200-step-30 \
+#	--rnn_size 200 \
+#	--num_layers 2 \
+#	--model lstm \
+#	--batch_size 20 \
+#	--num_steps 30 \
+#	--num_epochs 50 \
+#	--validation_interval 1 \
+#        --init_scale 0.1 \
+#	--grad_clip 5.0 \
+#	--learning_rate 1.0 \
+#	--decay_rate 0.5 \
+#	--keep_prob 0.5 \
+#	--optimization sgd
+#
+
+CUDA_VISIBLE_DEVICES=1 python engines/rnnlm/train.py \
+	--train_file data/twitter/train_clean_1M.txt \
+	--dev_file data/twitter/valid_rnnlm.txt \
+	--tokenizer_path data/twitter/sp_1m.model \
 	--output train.log \
-	--save_dir engines/rnnl/models \
-	--rnn_size 200 \
+	--save_dir engines/rnnlm/models-1m-rnn-50-step-30 \
+	--rnn_size 50 \
 	--num_layers 2 \
 	--model lstm \
 	--batch_size 20 \
-	--num_steps 50 \
+	--num_steps 30 \
 	--num_epochs 50 \
 	--validation_interval 1 \
         --init_scale 0.1 \
@@ -34,6 +55,28 @@ CUDA_VISIBLE_DEVICES=0 python engines/rnnl/train.py \
 	--decay_rate 0.5 \
 	--keep_prob 0.5 \
 	--optimization sgd
+
+#CUDA_VISIBLE_DEVICES=2 python engines/rnnlm/train.py \
+#	--train_file data/twitter/train_rnnlm_100k.txt \
+#	--dev_file data/twitter/valid_rnnlm.txt \
+#	--tokenizer_path data/twitter/sp_100k.model \
+#	--output train.log \
+#	--save_dir engines/rnnlm/models-100 \
+#	--rnn_size 200 \
+#	--num_layers 2 \
+#	--model lstm \
+#	--batch_size 20 \
+#	--num_steps 50 \
+#	--num_epochs 50 \
+#	--validation_interval 1 \
+#        --init_scale 0.1 \
+#	--grad_clip 5.0 \
+#	--learning_rate 1.0 \
+#	--decay_rate 0.2 \
+#	--keep_prob 0.5 \
+#	--optimization sgd
+
+
 
 #python engines/bert/create_pretraining_data.py \
 #   --input_file=data/twitter/valid_clean.txt \

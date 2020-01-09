@@ -130,5 +130,10 @@ dmypy.json
 
 data/
 engines/bert/__pycache__/
-engines/bert/models
-engines/rnnlm/models
+engines/bert/models*
+engines/rnnlm/models*
+engines/rnnlm/__pycache__/
+engines/xlnet/models*
+engines/ngram/*.count
+engines/ngram/*.vocab
+engines/ngram/*.lm

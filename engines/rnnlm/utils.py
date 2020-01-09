@@ -1,3 +1,8 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+# Author: Clara Vania
+
+from __future__ import unicode_literals, division
 import numpy as np
 import os
 import re
@@ -7,7 +12,7 @@ import random
 import _pickle as cPickle
 import collections
 import operator
-import sentencepiece as sp
+import sentencepiece as spm
 
 class TextLoader:
     def __init__(self, args, train=True):
@@ -16,7 +21,7 @@ class TextLoader:
         self.save_dir = args.save_dir
         self.batch_size = args.batch_size
         self.num_steps = args.num_steps
-        self.out_vocab_size = args.out_vocab_size
+        self.out_vocab_size = self.tokenizer.GetPieceSize()
         self.words_vocab_file = os.path.join(self.save_dir, "words_vocab.pkl")
 
         if train:
@@ -136,5 +141,5 @@ class TextLoader:
                 y = data[j][i*num_steps+1:(i+1)*num_steps+1]
                 xs.append(self.encode_data(x))
                 # ys.append(self.data_to_word_ids(y, True))
-                ys.append(self.encode_data(y, True))
+                ys.append(self.encode_data(y))
             yield (xs, ys)

@@ -1,3 +1,6 @@
+#!/usr/bin/python
+# Author: Clara Vania
+
 import numpy as np
 import tensorflow as tf
 import argparse
@@ -58,7 +61,9 @@ def run_epoch(session, m, data, data_loader, eval_op, verbose=False):
     start_time = time.time()
     costs = 0.0
     iters = 0
+
     state = m.initial_lm_state.eval()
+
     for step, (x, y) in enumerate(data_loader.data_iterator(data, m.batch_size, m.num_steps)):
         cost, state, _ = session.run([m.cost, m.final_state, eval_op],
                                      {m.input_data: x,
@@ -83,7 +88,7 @@ def train(args):
     except:
         os.mkdir(save_dir)
 
-    with open(os.path.join(args.save_dir, 'config.pkl'), 'w') as f:
+    with open(os.path.join(args.save_dir, 'config.pkl'), 'wb') as f:
         cPickle.dump(args, f)
 
     data_loader = TextLoader(args)
@@ -94,13 +99,13 @@ def train(args):
     fout = codecs.open(out_file, "w", encoding="UTF-8")
 
     args.word_vocab_size = data_loader.word_vocab_size
-    print "Word vocab size: " + str(data_loader.word_vocab_size) + "\n"
+    print("Word vocab size: " + str(data_loader.word_vocab_size) + "\n")
     fout.write("Word vocab size: " + str(data_loader.word_vocab_size) + "\n")
 
     # Model
     lm_model = WordLM
 
-    print "Begin training..."
+    print("Begin training...")
     # If using gpu:
     # gpu_options = tf.GPUOptions(per_process_gpu_memory_fraction=0.9)
     # gpu_config = tf.ConfigProto(log_device_placement=False, gpu_options=gpu_options)
@@ -146,10 +151,10 @@ def train(args):
             fout.flush()
 
             if dev_pp > dev_perplexity:
-                print "Achieve highest perplexity on dev set, save model."
+                print("Achieve lowest perplexity on dev set, save model.")
                 checkpoint_path = os.path.join(save_dir, 'model.ckpt')
                 saver.save(sess, checkpoint_path, global_step=e)
-                print "model saved to {}".format(checkpoint_path)
+                print("model saved to {}".format(checkpoint_path))
                 dev_pp = dev_perplexity
             e += 1
 
