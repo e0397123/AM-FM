@@ -1,0 +1,1 @@
+{"vocab_size": 32000, "bsz_per_host": 32, "num_core_per_host": 8, "seq_len": 512, "reuse_len": 256, "uncased": true, "bi_data": true, "mask_alpha": 6, "mask_beta": 1, "num_predict": 85, "use_eod": true, "sp_path": "", "input_glob": "data/example/*.txt"}
