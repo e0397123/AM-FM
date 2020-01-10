@@ -13,6 +13,7 @@ import _pickle as cPickle
 import collections
 import operator
 import sentencepiece as spm
+from tqdm import tqdm
 
 class TextLoader:
     def __init__(self, args, train=True):
@@ -60,7 +61,8 @@ class TextLoader:
         # with codecs.open(self.words_vocab_file) as f:
         #     self.word_to_id, self.unk_word_list = cPickle.load(f)
         #     self.word_vocab_size = len(self.word_to_id)
-        pass
+        self.word_vocab_size = self.tokenizer.GetPieceSize() 
+
 
     def build_vocab(self, train_data):
         """
@@ -133,7 +135,7 @@ class TextLoader:
         if epoch_size == 0:
             raise ValueError("epoch_size == 0, decrease batch_size or num_steps")
 
-        for i in range(epoch_size):
+        for i in tqdm(range(epoch_size)):
             xs = list()
             ys = list()
             for j in range(batch_size):

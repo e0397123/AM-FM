@@ -6,17 +6,20 @@ import tensorflow as tf
 import argparse
 import time
 import os
-import cPickle
+import _pickle as cPickle
 from utils import TextLoader
 from word import WordLM
+from tqdm import tqdm
 
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--test_file', type=str, default='data/tinyshakespeare/test.txt',
+    parser.add_argument('--test_file', type=str, default='data/twitter/valid_clean.txt',
                         help="test file")
     parser.add_argument('--save_dir', type=str, default='model',
                         help='directory of the checkpointed models')
+    parser.add_argument('--tokenizer_path', type=str, default='data/twitter/sp_10k.model',
+                        help="path to sentencepiece tokenizer")
     args = parser.parse_args()
     test(args)
 

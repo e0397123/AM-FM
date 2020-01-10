@@ -1,13 +1,13 @@
 #!/bin/bash
 
 # step 1:
-#python engines/rnnlm/create_raw_data.py \
+# python engines/rnnlm/create_raw_data.py \
 #  --train_file data/twitter/train.txt \
 #  --valid_file data/twitter/valid.txt \
 #  --train_output data/twitter/train_rnnlm_100k.txt \
 #  --valid_output data/twitter/valid_rnnlm.txt \
-#  --data_size 10000
-#
+#  --data_size 100000
+
 
 # step 2:
 # spm_train --input=data/twitter/train_clean_1M.txt --model_prefix=data/twitter/sp_1m --vocab_size=32000 --character_coverage=0.995 --model_type=bpe
@@ -36,17 +36,17 @@
 #	--optimization sgd
 #
 
-CUDA_VISIBLE_DEVICES=1 python engines/rnnlm/train.py \
-	--train_file data/twitter/train_clean_1M.txt \
-	--dev_file data/twitter/valid_rnnlm.txt \
-	--tokenizer_path data/twitter/sp_1m.model \
+CUDA_VISIBLE_DEVICES=0 python engines/rnnlm/train.py \
+	--train_file data/twitter/train_clean_100k.txt \
+	--dev_file data/twitter/valid_clean.txt \
+	--tokenizer_path data/twitter/sp_20k.model \
 	--output train.log \
-	--save_dir engines/rnnlm/models-1m-rnn-50-step-30 \
-	--rnn_size 50 \
+	--save_dir engines/rnnlm/models-100k-rnn-300-step-50 \
+	--rnn_size 300 \
 	--num_layers 2 \
 	--model lstm \
 	--batch_size 20 \
-	--num_steps 30 \
+	--num_steps 50 \
 	--num_epochs 50 \
 	--validation_interval 1 \
         --init_scale 0.1 \
