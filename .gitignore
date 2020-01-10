@@ -137,3 +137,4 @@ engines/xlnet/models*
 engines/ngram/*.count
 engines/ngram/*.vocab
 engines/ngram/*.lm
+engines/rnnlm/for_test/

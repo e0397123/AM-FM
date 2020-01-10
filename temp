@@ -1,6 +1,0 @@
-python engines/rnnlm/create_raw_data.py \
- --train_file data/twitter/train.txt \
- --valid_file data/twitter/valid.txt \
- --train_output data/twitter/train_rnnlm_1M.txt \
- --valid_output data/twitter/valid_rnnlm.txt \
- --data_size 1000000

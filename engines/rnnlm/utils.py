@@ -24,7 +24,6 @@ class TextLoader:
         self.num_steps = args.num_steps
         self.out_vocab_size = self.tokenizer.GetPieceSize()
         self.words_vocab_file = os.path.join(self.save_dir, "words_vocab.pkl")
-
         if train:
             self.train_data = self.read_dataset(args.train_file)
             self.dev_data = self.read_dataset(args.dev_file)
@@ -135,7 +134,7 @@ class TextLoader:
         if epoch_size == 0:
             raise ValueError("epoch_size == 0, decrease batch_size or num_steps")
 
-        for i in tqdm(range(epoch_size)):
+        for i in range(epoch_size):
             xs = list()
             ys = list()
             for j in range(batch_size):

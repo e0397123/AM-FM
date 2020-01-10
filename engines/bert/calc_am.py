@@ -56,6 +56,10 @@ if __name__=='__main__':
                 # top layer mean pooling
                 obj_emb = np.array([token['layers'][0]['values'] for token in obj['features']], dtype='float32')
                 obj_emb = np.mean(obj_emb, axis=0)
+            elif args.strategy == 'second-layer-max-pool':
+                # second layer max pooling
+                obj_emb = np.array([token['layers'][1]['values'] for token in obj['features']], dtype='float32')
+                obj_emb = np.max(obj_emb, axis=0)
             elif args.strategy == 'all-layer-concat-mean-pooling':
                 # all-layer-concat-mean-pooling
                 obj_emb = np.array([token['layers'][0]['values'] + token['layers'][1]['values'] \
@@ -133,6 +137,10 @@ if __name__=='__main__':
                 # top layer mean pooling
                 obj_emb = np.array([token['layers'][0]['values'] for token in obj['features']], dtype='float32')
                 obj_emb = np.mean(obj_emb, axis=0)
+            elif args.strategy == 'second-layer-max-pool':
+                # second layer max pooling
+                obj_emb = np.array([token['layers'][1]['values'] for token in obj['features']], dtype='float32')
+                obj_emb = np.max(obj_emb, axis=0)
             elif args.strategy == 'all-layer-concat-mean-pooling':
                 # all-layer-concat-mean-pooling
                 obj_emb = np.array([token['layers'][0]['values'] + token['layers'][1]['values'] \

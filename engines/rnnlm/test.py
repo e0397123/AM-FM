@@ -7,6 +7,8 @@ import argparse
 import time
 import os
 import _pickle as cPickle
+import codecs
+import glob
 from utils import TextLoader
 from word import WordLM
 from tqdm import tqdm
@@ -18,9 +20,13 @@ def main():
                         help="test file")
     parser.add_argument('--save_dir', type=str, default='model',
                         help='directory of the checkpointed models')
-    parser.add_argument('--tokenizer_path', type=str, default='data/twitter/sp_10k.model',
+    parser.add_argument('--tokenizer_path', type=str, default='data/twitter/sp_20k.model',
                         help="path to sentencepiece tokenizer")
+    parser.add_argument('--perplexity_file', type=str, 
+            default='data/twitter/dstc6_t2_evaluation/hypotheses/hyp_ppl_10k.txt', help="perplexity output file")
     args = parser.parse_args()
+    with codecs.open(args.perplexity_file, mode='w', encoding='utf-8') as wf:
+        wf.truncate()
     test(args)
 
 
@@ -42,15 +48,14 @@ def test(test_args):
     start = time.time()
     with open(os.path.join(test_args.save_dir, 'config.pkl'), 'rb') as f:
         args = cPickle.load(f)
+    print(args)
     data_loader = TextLoader(args, train=False)
-    test_data = data_loader.read_dataset(test_args.test_file)
-
-    args.word_vocab_size = data_loader.word_vocab_size
-    print("Word vocab size: " + str(data_loader.word_vocab_size) + "\n")
-
+    file_list = glob.glob(f'{test_args.test_file}/x*')
+    file_list.sort()
     # Model
     lm_model = WordLM
-
+    args.word_vocab_size = data_loader.word_vocab_size
+    print("Word vocab size: " + str(data_loader.word_vocab_size) + "\n")
     print("Begin testing...")
     # If using gpu:
     # gpu_options = tf.GPUOptions(per_process_gpu_memory_fraction=0.9)
@@ -68,10 +73,13 @@ def test(test_args):
         if ckpt and ckpt.model_checkpoint_path:
             saver.restore(sess, ckpt.model_checkpoint_path)
 
-        test_perplexity = run_epoch(sess, mtest, test_data, data_loader, tf.no_op())
-        print("Test Perplexity: %.3f" % test_perplexity)
+        for f in tqdm(file_list):
+            test_data = data_loader.read_dataset(f)
+            test_perplexity = run_epoch(sess, mtest, test_data, data_loader, tf.no_op())
+            # print("Test Perplexity: %.3f" % test_perplexity)
+            with codecs.open(test_args.perplexity_file, mode='a', encoding='utf-8') as wf: 
+                wf.write(str(test_perplexity) + '\n')
         print("Test time: %.0f" % (time.time() - start))
-
 
 if __name__ == '__main__':
     main()
