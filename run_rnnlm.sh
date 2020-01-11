@@ -36,23 +36,23 @@
 #	--optimization sgd
 #
 
-CUDA_VISIBLE_DEVICES=0 python engines/rnnlm/train.py \
-	--train_file data/twitter/train_clean_100k.txt \
+CUDA_VISIBLE_DEVICES=1 python engines/rnnlm/train.py \
+	--train_file data/twitter/train_clean_10k.txt \
 	--dev_file data/twitter/valid_clean.txt \
-	--tokenizer_path data/twitter/sp_20k.model \
+	--tokenizer_path data/twitter/bpe_full.model \
 	--output train.log \
-	--save_dir engines/rnnlm/models-100k-rnn-300-step-50 \
-	--rnn_size 300 \
+	--save_dir engines/rnnlm/models_10k_hidden-100 \
+	--rnn_size 100 \
 	--num_layers 2 \
 	--model lstm \
-	--batch_size 20 \
+	--batch_size 32 \
 	--num_steps 50 \
-	--num_epochs 50 \
+	--num_epochs 100 \
 	--validation_interval 1 \
         --init_scale 0.1 \
 	--grad_clip 5.0 \
 	--learning_rate 1.0 \
-	--decay_rate 0.5 \
+	--decay_rate 0.01 \
 	--keep_prob 0.5 \
 	--optimization sgd
 

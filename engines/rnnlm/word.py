@@ -2,6 +2,7 @@
 # Author: Clara Vania
 
 import tensorflow as tf
+import numpy as np
 
 class WordLM(object):
     """
@@ -31,6 +32,7 @@ class WordLM(object):
             cell_fn = rnn_cell.GRUCell
         elif model == 'lstm':
             cell_fn = rnn_cell.BasicLSTMCell
+            # cell_fn = tf.contrib.rnn.LayerNormBasicLSTMCell
         else:
             raise Exception("model type not supported: {}".format(args.model))
 
@@ -43,7 +45,8 @@ class WordLM(object):
         # ********************************************************************************
         # you can add this if using gpu
         # with tf.device(tf_device):
-        cell = cell_fn(rnn_size, forget_bias=0.0, state_is_tuple=False)
+        cell = cell_fn(rnn_size, forget_bias=1.0,state_is_tuple=False)
+
         if is_training and args.keep_prob < 1:
             cell = tf.nn.rnn_cell.DropoutWrapper(cell, output_keep_prob=args.keep_prob)
         lm_cell = tf.nn.rnn_cell.MultiRNNCell([cell] * args.num_layers, state_is_tuple=False)
@@ -51,7 +54,9 @@ class WordLM(object):
         self._initial_lm_state = lm_cell.zero_state(batch_size, tf.float32)
 
         with tf.device("/cpu:0"):
-            embedding = tf.get_variable("embedding", [word_vocab_size, rnn_size])
+            embedding = tf.Variable(tf.truncated_normal([word_vocab_size, rnn_size], 
+                                                    stddev=1.0/np.sqrt(rnn_size), name="embedding"))
+            # embedding = tf.get_variable("embedding", [word_vocab_size, rnn_size])
             inputs = tf.nn.embedding_lookup(embedding, self._input_data)
 
         if is_training and args.keep_prob < 1:
@@ -63,7 +68,7 @@ class WordLM(object):
         # lm_inputs = [tf.squeeze(input_, [1]) for input_ in lm_inputs]
         lm_outputs, lm_state = tf.nn.dynamic_rnn(lm_cell, inputs, initial_state=self._initial_lm_state)
 
-        lm_outputs = tf.concat(lm_outputs, 1)
+        lm_outputs = tf.concat(lm_outputs, axis=1)
         lm_outputs = tf.reshape(lm_outputs, [-1, rnn_size])
 
         softmax_w = tf.get_variable("softmax_w", [rnn_size, out_vocab_size])
