@@ -10,7 +10,7 @@ NUM_MAX_CORES = 7
 MIN_COUNTS = 1  # Number of times a word must occur to be included in the SVM model
 MIN_NGRAM_ORDER = 1
 MAX_NGRAM_ORDER = 5
-SELECTED_NGRAM_ORDER = 5
+SELECTED_NGRAM_ORDER = 4
 MIN_LOG_PROB = -10
 STARTING_VALUE_FEATURES = 0
 FULL_AM_SIZE = 2500
@@ -40,7 +40,7 @@ train_data_dir = root_dir + '/'
 scripts_dir = root_dir + '/tools/'
 dir_lm_out = root_dir + '/lms/'
 scores_dir = root_dir + '/scores/'
-models_dir = root_dir + '/models/'
+models_dir = root_dir + '/models'
 
 # type_vectorizer = 'tfidf'
 dir_svd_mono = root_dir + '/svd_mono_' + type_vectorizer + '/'

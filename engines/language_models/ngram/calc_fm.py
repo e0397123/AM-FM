@@ -203,7 +203,7 @@ def main():
     import configuration as cfg
 
     cS = calcScoresAMFM(cfg)
-    cS.load_models('twitter_100k')
+    cS.load_models('twitter_full')
     cS.processSubmission()
 
 

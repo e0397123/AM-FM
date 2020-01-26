@@ -14,8 +14,6 @@ logging.basicConfig(level=logging.DEBUG,
 parser = argparse.ArgumentParser()
 parser.add_argument("--hyp_file", type=str, help="path to hypothesis file")
 parser.add_argument("--ref_file", type=str, help="path to reference file")
-parser.add_argument("--strategy", type=str, 
-     help="am score computation strategy", default='top-layer-embedding-average')
 args = parser.parse_args()
 
 
@@ -25,18 +23,12 @@ def calc_fm_batch(hyp_list, ref_list):
         temp = []
         for ref in ref_list:
             temp.append(calc_fm(hyp, ref))
-        per_sys_score.append(np.mean(temp))
+        per_sys_score.append(np.amax(temp)-np.amin(temp))
     return per_sys_score
 
 def calc_fm(hyp, ref):
-    return 1.0 - ((max(1/hyp, 1/ref) - min(1/hyp, 1/ref))/max(1/hyp, 1/ref))
+    return min(1/hyp, 1/ref)/max(1/hyp, 1/ref)
 
-
-def absmaxND(a, axis=None):
-    amax = a.max(axis)
-    amin = a.min(axis)
-    return np.where(-amin > amax, amin, amax)
-    
 
 if __name__=='__main__':
 

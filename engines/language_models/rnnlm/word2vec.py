@@ -4,6 +4,8 @@ import collections
 import random
 import math
 import os
+import sys
+from tqdm import tqdm
 
 data_indices = None
 data_list = None
@@ -188,7 +190,7 @@ def define_word2vec_tensorflow():
     similarity = tf.matmul(valid_embeddings, tf.transpose(normalized_embeddings))
 	
 
-def run_word2vec(embedding_name):
+def run_word2vec(embedding_name, data_len):
     global batch_size, embedding_size, window_size
     global valid_size, valid_window, valid_examples
     global num_sampled
@@ -202,8 +204,8 @@ def run_word2vec(embedding_name):
     if os.path.exists(embedding_name):
         print('%s already exists.'%embedding_name)
     else:
-        num_steps = 10
-        steps_per_doc = 100
+        num_steps = 3
+        steps_per_doc = data_len // batch_size
         
         session = tf.InteractiveSession()
         
@@ -217,7 +219,7 @@ def run_word2vec(embedding_name):
         
             # Iterate through the documents in a random order
             for doc_id in np.random.permutation(num_files):
-                for doc_step in range(steps_per_doc):
+                for doc_step in tqdm(range(steps_per_doc)):
                     
                     # Generate a single batch of data from a document
                     batch_data, batch_labels = generate_batch_for_word2vec(data_list, doc_id, batch_size, window_size)
@@ -228,17 +230,18 @@ def run_word2vec(embedding_name):
                     _, l = session.run([optimizer, loss], feed_dict=feed_dict)
                     
                     average_loss += l
-                
+
+
             if (step+1) % 1 == 0:
                 if step > 0:
                     # compute average loss
-                    average_loss = average_loss / (doc_id*steps_per_doc)
+                    average_loss = average_loss / (num_files*steps_per_doc)
                 
                 print('Average loss at step %d: %f' % (step+1, average_loss))
                 average_loss = 0 # reset average loss
 
             # Evaluating validation set word similarities
-            if (step+1) % 5 == 0:
+            if (step+1) % 3 == 0:
                 sim = similarity.eval()
             
                 # Here we compute the top_k closest words for a given validation word
@@ -246,14 +249,18 @@ def run_word2vec(embedding_name):
                 # We do this for all the words in the validation set
                 # Note: This is an expensive step
                 for i in range(valid_size):
-                    valid_word = reverse_dictionary[valid_examples[i]]
-                    top_k = 4 # number of nearest neighbors
-                    nearest = (-sim[i, :]).argsort()[1:top_k+1]
-                    log = 'Nearest to %s:' % valid_word
-                    for k in range(top_k):
-                        close_word = reverse_dictionary[nearest[k]]
-                        log = '%s %s,' % (log, close_word)
-                    print(log)
+                    try:
+                        valid_word = reverse_dictionary[valid_examples[i]]
+                        top_k = 4 # number of nearest neighbors
+                        nearest = (-sim[i, :]).argsort()[1:top_k+1]
+                        log = 'Nearest to %s:' % valid_word
+                        for k in range(top_k):
+                            close_word = reverse_dictionary[nearest[k]]
+                            log = '%s %s,' % (log, close_word)
+                        print(log)
+                    except Exception as e:
+                        continue
+
         cbow_final_embeddings = normalized_embeddings.eval()
 
         # We save the embeddings as embeddings.npy 

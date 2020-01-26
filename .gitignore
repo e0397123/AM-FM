@@ -129,14 +129,12 @@ dmypy.json
 .pyre/
 
 data/
-engines/bert/__pycache__/
-engines/bert/models*
-engines/rnnlm/models*
-engines/rnnlm/__pycache__/
-engines/xlnet/models*
-engines/ngram/*.count
-engines/ngram/*.vocab
-engines/ngram/*.lm
-engines/ngram/models
-engines/rnnlm/for_test/
-engines/rnn-lm
+engines/embedding_models/bert/__pycache__/
+engines/embedding_models/bert/models*
+engines/embedding_models/bert/*.jsonl
+engines/language_models/rnnlm/twitter
+engines/language_models/rnnlm/__pycache__/
+engines/still_working
+engines/language_models/ngram/models
+engines/language_models/rnn-lm/
+engines/language_models/lstm-lm/
