@@ -155,7 +155,9 @@ python engines/language_mode/calc_fm.py \
 
 Currently, we are using weighted average to combine the system-level scores. The equation of combining them is as follow:
 
-
+<p align="center">
+  <img src="images/combine_am_fm.jpg"/>
+</p>
 
 
 
