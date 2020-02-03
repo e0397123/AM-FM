@@ -43,7 +43,7 @@ class calcScoresAMFM:
             temp = []
             for ref in ref_list:
                 temp.append(self.calculateFMMetric(ref, hyp))
-            per_sys_score.append(np.mean(temp))
+            per_sys_score.append(np.amax(temp) - np.amin(temp))
         return per_sys_score
 
     # Function to calculate the FM metric using language models

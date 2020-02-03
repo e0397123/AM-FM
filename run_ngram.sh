@@ -26,14 +26,14 @@ norder=1
 #	-kndiscount5
 
 ngram \
- 	-ppl engines/rnn-lm/valid_clean.txt \
+ 	-ppl engines/language_models/rnn-lm/valid_clean.txt \
  	-order 1 \
- 	-lm engines/ngram/models/twitter_${vocab_size}.${norder}.lm
+ 	-lm engines/language_models/ngram/models/twitter_${vocab_size}.${norder}.lm
 
 ngram \
- 	-ppl engines/rnn-lm/test_clean.txt \
+ 	-ppl engines/language_models/rnn-lm/test_clean.txt \
  	-order 1 \
- 	-lm engines/ngram/models/twitter_${vocab_size}.${norder}.lm
+ 	-lm engines/language_models/ngram/models/twitter_${vocab_size}.${norder}.lm
 
 #ngram \
 # 	-ppl engines/rnn-lm/valid_clean.txt \

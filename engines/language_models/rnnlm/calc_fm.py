@@ -3,8 +3,6 @@ import logging
 import string
 import codecs
 import numpy as np
-from numpy import linalg as LA
-import jsonlines
 from tqdm import tqdm
 
 
@@ -24,11 +22,13 @@ def calc_fm_batch(hyp_list, ref_list):
         for ref in ref_list:
             temp.append(calc_fm(hyp, ref))
         per_sys_score.append(np.amax(temp)-np.amin(temp))
+#        per_sys_score.append(np.amax(temp))
+#        per_sys_score.append(np.amin(temp))
+#        per_sys_score.append(np.mean(temp))
     return per_sys_score
 
 def calc_fm(hyp, ref):
     return min(1/hyp, 1/ref)/max(1/hyp, 1/ref)
-
 
 if __name__=='__main__':
 

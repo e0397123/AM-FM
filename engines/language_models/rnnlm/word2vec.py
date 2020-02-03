@@ -204,7 +204,7 @@ def run_word2vec(embedding_name, data_len):
     if os.path.exists(embedding_name):
         print('%s already exists.'%embedding_name)
     else:
-        num_steps = 3
+        num_steps = 5
         steps_per_doc = data_len // batch_size
         
         session = tf.InteractiveSession()
@@ -233,7 +233,7 @@ def run_word2vec(embedding_name, data_len):
 
 
             if (step+1) % 1 == 0:
-                if step > 0:
+                if step + 1 > 0:
                     # compute average loss
                     average_loss = average_loss / (num_files*steps_per_doc)
                 
