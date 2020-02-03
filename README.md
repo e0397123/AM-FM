@@ -164,5 +164,14 @@ Currently, we are using weighted average to combine the system-level scores. The
 <p align="center">
   <img src="images/table1.jpg"/>
 </p>
+<p align="center">
+  <img src="images/table2.jpg"/>
+</p>
+<p align="center">
+  <img src="images/table3.jpg"/>
+</p>
+<p align="center">
+  <img src="images/table4.jpg"/>
+</p>
 
 
