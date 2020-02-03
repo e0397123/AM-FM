@@ -25,6 +25,7 @@ To be added
 2. emoji=0.5.4
 3. jsonlines=1.2.0
 4. tensorflow-gpu=1.14.0
+5. tqdm=4.38.0
 
 ### Adequacy Metric
 
