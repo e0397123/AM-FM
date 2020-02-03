@@ -154,7 +154,8 @@ python engines/language_mode/calc_fm.py \
 ### Combining AM & FM
 
 Currently, we are using weighted average to combine the system-level scores. The equation of combining them is as follow:
-![equation]$AM_{score} * \lambda + (1 - \lambda) * FM_{score}$
+
+
 
 
 
