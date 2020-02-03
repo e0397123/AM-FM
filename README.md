@@ -38,11 +38,13 @@ To be added
 
 1. Download the [BERT-Base, Multilingual Cased] pretrained model from https://github.com/google-research/bert and configure the BERT_BASE_DIR
 
-2. create the preprocessed training and validation files with command: 
-    
-    python engines/embedding_models/bert/create_raw_data.py \
-      --train_file data/twitter/train.txt \
-      --train_output engines/embedding_models/bert/train_clean_100k.txt \
-      --data_size 100000
+2. create preprocessed training and validation data with specific training size: 
+
+```bash
+python engines/embedding_models/bert/create_raw_data.py \
+  --train_file data/twitter/train.txt \
+  --train_output engines/embedding_models/bert/train_clean_100k.txt \
+  --data_size 100000
+```
 
 
