@@ -21,7 +21,10 @@ To be added
 
 ### Toolkit Requirements
 
-1. python 3x
+1. python 3.x
+2. emoji=0.5.4
+3. jsonlines=1.2.0
+4. tensorflow-gpu=1.14.0
 
 ### Adequacy Metric
 
