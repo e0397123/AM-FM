@@ -27,5 +27,22 @@ To be added
 4. tensorflow-gpu=1.14.0
 5. tqdm=4.38.0
 
-### Adequacy Metric
+### Dataset
+
+1. Follow instructions at https://github.com/dialogtekgeek/DSTC6-End-to-End-Conversation-Modeling.git to collect the twitter dialogues.
+2. create the data folder and add the raw train, validation and test file in the data folder.
+
+### Run Adequacy Evaluation
+
+#### Using BERT Embedding Model
+
+1. Download the [BERT-Base, Multilingual Cased] pretrained model from https://github.com/google-research/bert and configure the BERT_BASE_DIR
+
+2. create the preprocessed training and validation files with command: 
+    
+    python engines/embedding_models/bert/create_raw_data.py \
+      --train_file data/twitter/train.txt \
+      --train_output engines/embedding_models/bert/train_clean_100k.txt \
+      --data_size 100000
+
 
