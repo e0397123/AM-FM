@@ -35,11 +35,11 @@ To be added
 
 ### Run Adequacy Evaluation
 
-#### Using BERT Embedding Model (Most of the steps follow the google official bert repo)
+#### Using BERT Embedding Model (most of the steps follow the google official bert repo)
 
-1. Download the [BERT-Base, Multilingual Cased] pretrained model from https://github.com/google-research/bert and configure the BERT_BASE_DIR environment variable.
+##### 1. Download the [BERT-Base, Multilingual Cased] pretrained model from https://github.com/google-research/bert and configure the BERT_BASE_DIR environment variable.
 
-2. Create preprocessed training and validation data with specific training size: 
+##### 2. Create preprocessed training and validation data with specific training size: 
 ```bash
 python engines/embedding_models/bert/create_raw_data.py \
   --train_file data/twitter/train.txt \
@@ -47,7 +47,7 @@ python engines/embedding_models/bert/create_raw_data.py \
   --data_size 100000
 ```
 
-3. Create tfrecord pretraining data
+##### 3. Create tfrecord pretraining data
 ```bash
 python engines/embedding_models/bert/create_pretraining_data.py \
   --input_file=data/twitter/train_clean_100k.txt \
@@ -61,7 +61,7 @@ python engines/embedding_models/bert/create_pretraining_data.py \
   --dupe_factor=5
 ```
 
-4. Conduct pretraining
+##### 4. Conduct pretraining
 ```bash
 CUDA_VISIBLE_DEVICES=1 python engines/embedding_models/bert/run_pretraining.py \
   --train_input_file=data/twitter/train_clean_100k_60.tfrecord \
@@ -80,7 +80,7 @@ CUDA_VISIBLE_DEVICES=1 python engines/embedding_models/bert/run_pretraining.py \
   --learning_rate=2e-5
 ```
 
-5. Feature extraction
+##### 5. Feature extraction
 ```bash
 CUDA_VISIBLE_DEVICES=1 python engines/embedding_models/bert/extract_features.py \
   --input_file=data/twitter/dstc6_t2_evaluation/hypotheses/hyp_clean.txt \
@@ -104,11 +104,57 @@ CUDA_VISIBLE_DEVICES=1 python engines/embedding_models/bert/extract_features.py 
   --batch_size=8
 ```
 
-6. Compute AM Score
+##### 6. Compute AM Score
 ```bash
 python engines/embedding_models/bert/calc_am.py \
   --hyp_file=engines/embedding_models/bert/features/hyp_clean_60_100k.jsonl \
   --ref_file=engines/embedding_models/bert/features/ref_clean_60_100k.jsonl \
   --strategy=top-layer-embedding-average
 ```
+
+### Run Fluency Evaluation
+
+#### Using LSTM-RNN Language Model
+
+##### 1. Follow https://github.com/google/sentencepiece.git to train a sentencepiece tokenizer with the full training set
+```bash
+spm_train --input=data/twitter/train_clean_full.txt --model_prefix=data/twitter/bpe_full --vocab_size=32000 --character_coverage=0.995 --model_type=bpe
+```
+
+##### 1. Create preprocessed training and validation data (same as step 1 in Using BERT Embedding Model)
+
+##### 2. Training the language model
+```bash
+SIZE=100k  
+CUDA_VISIBLE_DEVICES=3 python engines/language_model/main.py \
+  --data_path=data \
+  --dataset=twitter \
+  --data_size=${SIZE} \
+  --model_name=lstm-${SIZE}-sp-nopad \
+  --embedding_name=embedding.npy \
+  --tokenizer_path=data/twitter/bpe_full.model \
+  --hyp_out=ppl_hypothesis.txt \
+  --ref_out=ppl_reference.txt \
+  --batch_size=32 \
+  --embedding_size=300 \
+  --num_nodes=150,105,70 \
+  --num_epochs=100 \
+  --use_sp=True \
+  --do_train=True \
+  --do_eval=True \
+  --do_dstc_eval=True
+```
+##### 3. Calculate FM Score
+```bash
+python engines/language_mode/calc_fm.py \
+--hyp_file=data/twitter/ppl_hypothesis.txt \
+--ref_file=data/twitter/ppl_reference.txt
+```
+
+### Combining AM & FM
+
+Currently, we are using weighted average to combine the system-level scores. The equation of combining them is as follow:
+$AM_{score} * \lambda + (1 - \lambda) * FM_{score}$
+
+
 
