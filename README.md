@@ -34,17 +34,32 @@ To be added
 
 ### Run Adequacy Evaluation
 
-#### Using BERT Embedding Model
+#### Using BERT Embedding Model (Most of the steps follow the google official bert repo)
 
-1. Download the [BERT-Base, Multilingual Cased] pretrained model from https://github.com/google-research/bert and configure the BERT_BASE_DIR
+1. Download the [BERT-Base, Multilingual Cased] pretrained model from https://github.com/google-research/bert and configure the BERT_BASE_DIR environment variable.
 
-2. create preprocessed training and validation data with specific training size: 
+2. Create preprocessed training and validation data with specific training size: 
 
 ```bash
 python engines/embedding_models/bert/create_raw_data.py \
   --train_file data/twitter/train.txt \
   --train_output engines/embedding_models/bert/train_clean_100k.txt \
   --data_size 100000
+```
+
+3. Create tf record pretraining data
+
+```bash
+python engines/embedding_models/bert/create_pretraining_data.py \
+  --input_file=engines/embedding_models/bert/train_clean_100k.txt \
+  --output_file=engines/embedding_models/bert/train_clean_100k_60.tfrecord \
+  --vocab_file=$BERT_BASE_DIR/vocab.txt \
+  --do_lower_case=True \
+  --max_seq_length=60 \
+  --max_predictions_per_seq=9 \
+  --masked_lm_prob=0.15 \
+  --random_seed=12345 \
+  --dupe_factor=5
 ```
 
 
