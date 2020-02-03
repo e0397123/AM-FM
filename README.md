@@ -15,3 +15,13 @@ This component aims to assess the syntactic validity of system responses. It tri
 ### Pragmatics Metric
 
 To be added
+
+
+## Evaluation Procedure
+
+### Toolkit Requirements
+
+1. python 3x
+
+### Adequacy Metric
+
