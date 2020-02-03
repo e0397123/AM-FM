@@ -159,5 +159,10 @@ Currently, we are using weighted average to combine the system-level scores. The
   <img src="images/combine_am_fm.jpg"/>
 </p>
 
+### Current Experimental Results
+
+<p align="center">
+  <img src="images/table1.jpg"/>
+</p>
 
 
