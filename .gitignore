@@ -140,3 +140,4 @@ engines/language_models/ngram/models
 engines/language_models/rnn-lm/
 engines/language_models/lstm-lm/
 engines/language_models/rnnlm/*.sh
+*.sh
