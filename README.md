@@ -22,7 +22,7 @@ This component aims to assess the syntactic validity of system responses. It tri
 
 ### Examples
 
-Please refer to the example folder for detailed experimental setup and implementation steps for various evaluation tasks.
+Please refer to the example folder for detailed experimental setup and implementation steps of various evaluation tasks.
 
 ## References
 <a id="1">[1]</a> 
