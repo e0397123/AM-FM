@@ -24,8 +24,10 @@ This repo is for the paper, 'Deep AM-FM: Toolkit For Automatic Dialogue Evaluati
 ## References
 <a id="1">[1]</a> 
 Banchs, R. E., & Li, H. (2011, June). AM-FM: A semantic framework for translation quality assessment. In Proceedings of the 49th Annual Meeting of the ACL: Human Language Technologies: short papers-Volume 2 (pp. 153-158). ACL.
+<br>
 <a id="2">[2]</a>
  Banchs, R. E., D’Haro, L. F., & Li, H. (2015). Adequacy–fluency metrics: Evaluating MT in the continuous space model framework. IEEE/ACM TASLP, 23(3), 472-482.
+<br>
 <a id="3">[3]</a>
 D'Haro, L. F., Banchs, R. E., Hori, C., & Li, H. (2019). Automatic evaluation of end-to-end dialog systems with adequacy-fluency metrics. Computer Speech & Language, 55, 200-215.
 
