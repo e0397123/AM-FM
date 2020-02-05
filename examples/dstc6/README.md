@@ -136,9 +136,9 @@ Currently, we are using weighted average to combine the system-level scores. The
   <img src="images/combine_am_fm.jpg"/>
 </p>
 
-## Experimental Results
+### Experimental Results
 
-### AM BERT Model
+#### AM BERT Model
 <p align="center">
   <img src="images/table1.jpg"/>
 </p>
@@ -146,7 +146,7 @@ Currently, we are using weighted average to combine the system-level scores. The
   <img src="images/table3.jpg"/>
 </p>
 
-### FM LSTM-RNN Language Model
+#### FM LSTM-RNN Language Model
 <p align="center">
   <img src="images/table2.jpg"/>
 </p>
