@@ -1,4 +1,4 @@
-### Examples Checklist
+### Example Checklist
 
 #### 1. DSTC6 End-to-End Conversational Modeling
 
