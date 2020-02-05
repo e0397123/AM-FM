@@ -1,6 +1,6 @@
 ## DSTC6 End-to-End Conversational Modeling Evaluation Task
 
-This example is for replicating the experimental results in the paper, 'Deep AM-FM: Toolkit For Automatic Dialogue Evaluation', IWSDS 2020 Submission and we are continuously improving this repo to make it a better platform for dialogue evaluation.
+This example is for replicating the experimental results in IWSDS 2020 Submission, 'Deep AM-FM: Toolkit For Automatic Dialogue Evaluation'.
 
 ### Dataset
 
