@@ -12,21 +12,21 @@
 
 ##### 1. Download the [BERT-Base, Multilingual Cased] pretrained model from https://github.com/google-research/bert and configure the BERT_BASE_DIR environment variable.
 
-##### 2. Create preprocessed training and validation data with specific training size: 
+##### 2. Create preprocessed training and validation data with specific training size. This step is to conduct preprocessing on the twitter dialogues.
 ```bash
 python ../../engines/embedding_models/bert/create_raw_data.py \
-  --train_file /your/path/to/train.txt \
-  --train_output /your/path/to/processed/train/file \
-  --valid_file /your/path/to/valid.txt \
-  --valid_output /your/path/to/processed/valid/file \
-  --data_size {size of your data, such as 10000}
+  --train_file=/path/to/train.txt \
+  --train_output=/path/to/processed/train/file \
+  --valid_file=/path/to/valid.txt \
+  --valid_output=/path/to/processed/valid/file \
+  --data_size={size of your data, such as 10000}
 ```
 
-##### 3. Create tfrecord pretraining data
+##### 3. Create tfrecord pretraining data. The tfrecord data is to easier the pretraining and faster loading. 
 ```bash
-python engines/embedding_models/bert/create_pretraining_data.py \
-  --input_file=data/twitter/train_clean_100k.txt \
-  --output_file=data/twitter/train_clean_100k_60.tfrecord \
+python ../../engines/embedding_models/bert/create_pretraining_data.py \
+  --input_file=/path/to/processed/train/file \
+  --output_file=/path/to/processed/train/tfrecord_file \
   --vocab_file=$BERT_BASE_DIR/vocab.txt \
   --do_lower_case=True \
   --max_seq_length=60 \
@@ -36,12 +36,12 @@ python engines/embedding_models/bert/create_pretraining_data.py \
   --dupe_factor=5
 ```
 
-##### 4. Conduct pretraining
+##### 4. Conduct pretraining of bert model
 ```bash
-CUDA_VISIBLE_DEVICES=1 python engines/embedding_models/bert/run_pretraining.py \
-  --train_input_file=data/twitter/train_clean_100k_60.tfrecord \
-  --valid_input_file=data/twitter/valid_clean_60.tfrecord \
-  --output_dir=engines/embedding_models/bert/models/50k_60_2 \
+CUDA_VISIBLE_DEVICES=1 python ../../engines/embedding_models/bert/run_pretraining.py \
+  --train_input_file=/path/to/processed/train/tfrecord_file \
+  --valid_input_file=/path/to/processed/valid/tfrecord_file \
+  --output_dir=/path/to/save/model \
   --do_train=True \
   --do_eval=True \
   --bert_config_file=$BERT_BASE_DIR/bert_config.json \
@@ -55,25 +55,25 @@ CUDA_VISIBLE_DEVICES=1 python engines/embedding_models/bert/run_pretraining.py \
   --learning_rate=2e-5
 ```
 
-##### 5. Feature extraction
+##### 5. Feature extraction. This step is to extract fixed word-level contextualized embedding.
 ```bash
-CUDA_VISIBLE_DEVICES=1 python engines/embedding_models/bert/extract_features.py \
-  --input_file=data/twitter/dstc6_t2_evaluation/hypotheses/hyp_clean.txt \
-  --output_file=engines/embedding_models/bert/features/hyp_clean_60_100k.jsonl \
+CUDA_VISIBLE_DEVICES=1 python ../../engines/embedding_models/bert/extract_features.py \
+  --input_file=/path/to/processed/hypothesis/file \
+  --output_file=/path/to/extracted/hypothesis/json/file \
   --vocab_file=$BERT_BASE_DIR/vocab.txt \
   --bert_config_file=$BERT_BASE_DIR/bert_config.json \
-  --init_checkpoint=engines/embedding_models/bert/models/100k_60/model.ckpt-10000 \
+  --init_checkpoint=/path/to/the/trained/checkpoint \
   --layers=-1,-2,-3,-4 \
   --max_seq_length=60 \
   --batch_size=8
 ```
 ```bash
-CUDA_VISIBLE_DEVICES=1 python engines/embedding_models/bert/extract_features.py \
-  --input_file=data/twitter/dstc6_t2_evaluation/references/ref_clean.txt \
-  --output_file=engines/embedding_models/bert/features/ref_clean_60_100k.jsonl \
+CUDA_VISIBLE_DEVICES=1 python ../../engines/embedding_models/bert/extract_features.py \
+  --input_file=/path/to/processed/reference/file \
+  --output_file=/path/to/extracted/reference/json/file \
   --vocab_file=$BERT_BASE_DIR/vocab.txt \
   --bert_config_file=$BERT_BASE_DIR/bert_config.json \
-  --init_checkpoint=engines/embedding_models/bert/models/100k_60/model.ckpt-10000 \
+  --init_checkpoint=/path/to/the/trained/checkpoint \
   --layers=-1,-2,-3,-4 \
   --max_seq_length=60 \
   --batch_size=8
@@ -81,10 +81,10 @@ CUDA_VISIBLE_DEVICES=1 python engines/embedding_models/bert/extract_features.py 
 
 ##### 6. Compute AM Score
 ```bash
-python engines/embedding_models/bert/calc_am.py \
-  --hyp_file=engines/embedding_models/bert/features/hyp_clean_60_100k.jsonl \
-  --ref_file=engines/embedding_models/bert/features/ref_clean_60_100k.jsonl \
-  --strategy=top-layer-embedding-average
+python ../../engines/embedding_models/bert/calc_am.py \
+  --hyp_file=/path/to/extracted/hypothesis/json/file \
+  --ref_file=/path/to/extracted/reference/json/file \
+  --strategy={heuristic for form sentence embedding, such as top-layer-embedding-average}
 ```
 
 ### Run Fluency Evaluation
@@ -93,23 +93,23 @@ python engines/embedding_models/bert/calc_am.py \
 
 ##### 1. Follow https://github.com/google/sentencepiece.git to train a sentencepiece tokenizer with the full training set
 ```bash
-spm_train --input=data/twitter/train_clean_full.txt --model_prefix=data/twitter/bpe_full --vocab_size=32000 --character_coverage=0.995 --model_type=bpe
+spm_train --input=/path/to/full/processed/train/data --model_prefix=/path/to/model/prefix --vocab_size={vocabulary size} --character_coverage=0.995 --model_type=bpe
 ```
 
 ##### 1. Create preprocessed training and validation data (same as step 1 in Using BERT Embedding Model)
 
 ##### 2. Training the language model
 ```bash
-SIZE=100k  
-CUDA_VISIBLE_DEVICES=3 python engines/language_model/main.py \
-  --data_path=data \
-  --dataset=twitter \
+SIZE={specify data size, such as 100K}  
+CUDA_VISIBLE_DEVICES=3 python ../../engines/language_model/main.py \
+  --data_path=/path/to/dataset \
+  --dataset={name_of_dataset} \
   --data_size=${SIZE} \
-  --model_name=lstm-${SIZE}-sp-nopad \
-  --embedding_name=embedding.npy \
-  --tokenizer_path=data/twitter/bpe_full.model \
-  --hyp_out=ppl_hypothesis.txt \
-  --ref_out=ppl_reference.txt \
+  --model_name=/path/to/save/model \
+  --embedding_name={name of word embedding} \
+  --tokenizer_path=/path/to/sentencepiece/model \
+  --hyp_out={name of hypothesis sentence level perplexity file} \
+  --ref_out={name of reference sentence level perplexity file} \
   --batch_size=32 \
   --embedding_size=300 \
   --num_nodes=150,105,70 \
@@ -121,9 +121,9 @@ CUDA_VISIBLE_DEVICES=3 python engines/language_model/main.py \
 ```
 ##### 3. Calculate FM Score
 ```bash
-python engines/language_mode/calc_fm.py \
---hyp_file=data/twitter/ppl_hypothesis.txt \
---ref_file=data/twitter/ppl_reference.txt
+python ../../engines/language_mode/calc_fm.py \
+--hyp_file=/path/to/hypothesis/perplexity/file \
+--ref_file=/path/to/reference/perplexity/file
 ```
 
 ### Combining AM & FM
