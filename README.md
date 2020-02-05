@@ -1,5 +1,3 @@
-# AM-FM-PM
-
 ## The Deep AM-FM Framework
 
 This framework intends to serve as a general evaluation framework for natural language generation tasks, such as machine translation, dialogue system and summarization. 
