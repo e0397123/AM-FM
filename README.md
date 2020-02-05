@@ -1,7 +1,5 @@
 # AM-FM-PM
 
-This repo is for the paper, 'Deep AM-FM: Toolkit For Automatic Dialogue Evaluation', IWSDS 2020 Submission and we are continuously improving this repo to make it a better platform for dialogue evaluation.
-
 ## The Deep AM-FM Framework
 
 ### Adequacy Metric
@@ -12,9 +10,6 @@ This component aims to assess the semantic aspect of system responses, more spec
 
 This component aims to assess the syntactic validity of system responses. It tries to compare the system hypotheses against human references in terms of their respective sentence-level normalized log probabilities based on the assumption that sentences that are of similar syntactic validity should share similar perplexity level given by a language model. Hence, in this component, various language model techniques are explored to accurately estimate the sentence-level probability distribution.
 
-
-## Evaluation Procedure
-
 ### Toolkit Requirements
 
 1. python 3.x
@@ -23,4 +18,14 @@ This component aims to assess the syntactic validity of system responses. It tri
 4. tensorflow-gpu=1.14.0
 5. tqdm=4.38.0
 
+
+This repo is for the paper, 'Deep AM-FM: Toolkit For Automatic Dialogue Evaluation', IWSDS 2020 Submission and we are continuously improving this repo to make it a better platform for dialogue evaluation.
+
+## References
+<a id="1">[1]</a> 
+Banchs, R. E., & Li, H. (2011, June). AM-FM: A semantic framework for translation quality assessment. In Proceedings of the 49th Annual Meeting of the ACL: Human Language Technologies: short papers-Volume 2 (pp. 153-158). ACL.
+<a id="2">[2]</a>
+ Banchs, R. E., D’Haro, L. F., & Li, H. (2015). Adequacy–fluency metrics: Evaluating MT in the continuous space model framework. IEEE/ACM TASLP, 23(3), 472-482.
+<a id="3">[3]</a>
+D'Haro, L. F., Banchs, R. E., Hori, C., & Li, H. (2019). Automatic evaluation of end-to-end dialog systems with adequacy-fluency metrics. Computer Speech & Language, 55, 200-215.
 
