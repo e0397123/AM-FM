@@ -21,8 +21,8 @@ examples/dstc6/Data/
 # Model
 model_pretrain/
 
-examples/dstc6/pretrain/
-examples/dstc6/result/
+examples/dstc6/pretrain/*
+examples/dstc6/result/*
 engines/embedding_models/InferSent/encoder/*
 engines/embedding_models/InferSent/fastText/*
 
@@ -30,7 +30,10 @@ engines/embedding_models/InferSent/fastText/*
 
 
 # Don't ignore
-!.md
-!.gitkeep
-!engines/embedding_models/InferSent/encoder
-!engines/embedding_models/InferSent/fastText
+!*.md
+!*.gitkeep
+!*.keep
+
+
+
+
