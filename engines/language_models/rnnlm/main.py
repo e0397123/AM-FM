@@ -236,6 +236,7 @@ def decay_learning_rate(session, v_perplexity):
         print('\t Reducing learning rate')
         decay_count = 0
         session.run(inc_gstep)
+<<<<<<< HEAD
 
 
 def define_graph(return_key=None):
@@ -244,6 +245,71 @@ def define_graph(return_key=None):
         sp = spm.SentencePieceProcessor()
         sp.Load(FLAGS.tokenizer_path)
         vocabulary_size = sp.GetPieceSize()
+=======
+
+
+if __name__ == "__main__":
+
+    num_files = 3
+
+    dir_name = FLAGS.data_path
+
+    filenames = ['train_clean_{}.txt'.format(FLAGS.data_size), 'valid_clean.txt', 'test_clean.txt']
+
+    model_path = FLAGS.model_path
+    if not os.path.exists(model_path):
+        os.mkdir(model_path)
+
+    # ## Reading data
+    # Data will be stored in a list of lists where the each list represents a document and document is a list of words. We will then break the text into words.
+
+    global documents
+
+    documents = []
+
+    for i in range(num_files):
+        print('\nProcessing file %s' % os.path.join(dir_name, filenames[i]))
+
+        words = read_data(os.path.join(dir_name, filenames[i]))
+
+        documents.append(words)
+        print('Data size (Characters) (Document %d) %d' % (i, len(words)))
+        print('Sample string (Document %d) %s' % (i, words[:50]))
+
+    # ## Building the Dictionaries
+    # Builds the following. To understand each of these elements, let us also assume the text "I like to go to school"
+    # 
+    # * `dictionary`: maps a string word to an ID (e.g. {I:0, like:1, to:2, go:3, school:4})
+    # * `reverse_dictionary`: maps an ID to a string word (e.g. {0:I, 1:like, 2:to, 3:go, 4:school}
+    # * `count`: List of list of (word, frequency) elements (e.g. [(I,1),(like,1),(to,2),(go,1),(school,1)]
+    # * `data` : Contain the string of text we read, where string words are replaced with word IDs (e.g. [0, 1, 2, 3, 2, 4])
+    # 
+    # It also introduces an additional special token `UNK` to denote rare words to are too rare to make use of.
+
+    if not FLAGS.use_sp:
+        # print some statistics about data
+        data_list, dictionary, reverse_dictionary = build_dataset(documents, model_path)
+        print('Sample data', data_list[0][:10])
+        print('Sample data', data_list[1][:10])
+        print('Vocabulary: ', len(dictionary))
+        vocabulary_size = len(dictionary)
+    else:
+        data_list = build_dataset_sp(documents)
+        print('Sample data', data_list[0][:10])
+        print('Sample data', data_list[1][:10])
+        vocabulary_size = sp.GetPieceSize()
+    del documents  # To reduce memory.
+
+    # data_len = max([len(data) for data in data_list])
+
+    # Train or load word2vec embeddings
+    embedding_name = os.path.join(model_path, FLAGS.embedding_name)
+    learn_w2v(1, [data_list[0]], reverse_dictionary, FLAGS.embedding_size, vocabulary_size, embedding_name,
+              len(data_list[0]))
+
+    # =========================================================
+    # Define Graph
+>>>>>>> d24c6227846a1aff564d114b95ca23eac403b746
 
     # Number of neurons in the hidden state variables
     num_nodes = [int(node) for node in FLAGS.num_nodes]
@@ -260,6 +326,7 @@ def define_graph(return_key=None):
     train_labels_ohe = []
     # Defining unrolled training inputs
     for ui in range(FLAGS.seq_len):
+<<<<<<< HEAD
         train_inputs.append(tf.compat.v1.placeholder(tf.int32, shape=[FLAGS.batch_size], name='train_inputs_%d' % ui))
         train_labels.append(tf.compat.v1.placeholder(tf.int32, shape=[FLAGS.batch_size], name='train_labels_%d' % ui))
         train_labels_ohe.append(tf.one_hot(train_labels[ui], vocabulary_size))
@@ -271,6 +338,19 @@ def define_graph(return_key=None):
 
     # Text generation: batch 1, no unrolling.
     test_input = tf.compat.v1.placeholder(tf.int32, shape=[1], name='test_input')
+=======
+        train_inputs.append(tf.placeholder(tf.int32, shape=[FLAGS.batch_size], name='train_inputs_%d' % ui))
+        train_labels.append(tf.placeholder(tf.int32, shape=[FLAGS.batch_size], name='train_labels_%d' % ui))
+        train_labels_ohe.append(tf.one_hot(train_labels[ui], vocabulary_size))
+
+    # Validation data placeholders
+    valid_inputs = tf.placeholder(tf.int32, shape=[1], name='valid_inputs')
+    valid_labels = tf.placeholder(tf.int32, shape=[1], name='valid_labels')
+    valid_labels_ohe = tf.one_hot(valid_labels, vocabulary_size)
+
+    # Text generation: batch 1, no unrolling.
+    test_input = tf.placeholder(tf.int32, shape=[1], name='test_input')
+>>>>>>> d24c6227846a1aff564d114b95ca23eac403b746
 
     # ## Loading Word Embeddings to TensorFlow
     # We load the previously learned and stored embeddings to TensorFlow and define tensors to hold embeddings
@@ -300,8 +380,13 @@ def define_graph(return_key=None):
 
     print('Defining softmax weights and biases')
     # Softmax Classifier weights and biases.
+<<<<<<< HEAD
     w = tf.Variable(tf.random.truncated_normal([num_nodes[-1], vocabulary_size], stddev=0.01))
     b = tf.Variable(tf.random.uniform([vocabulary_size], 0.0, 0.01))
+=======
+    w = tf.Variable(tf.truncated_normal([num_nodes[-1], vocabulary_size], stddev=0.01))
+    b = tf.Variable(tf.random_uniform([vocabulary_size], 0.0, 0.01))
+>>>>>>> d24c6227846a1aff564d114b95ca23eac403b746
 
     print('Defining the LSTM cell')
     # Defining a deep LSTM from Tensorflow RNN API
@@ -360,9 +445,14 @@ def define_graph(return_key=None):
     time_major_train_labels = tf.reshape(tf.concat(train_labels, axis=0), [FLAGS.seq_len, FLAGS.batch_size])
 
     # Perplexity related operation
+<<<<<<< HEAD
     train_perplexity_without_exp = tf.reduce_sum(
         tf.concat(train_labels_ohe, 0) * -tf.math.log(train_prediction + 1e-10)) / (
                                            FLAGS.seq_len * FLAGS.batch_size)
+=======
+    train_perplexity_without_exp = tf.reduce_sum(tf.concat(train_labels_ohe, 0) * -tf.log(train_prediction + 1e-10)) / (
+            FLAGS.seq_len * FLAGS.batch_size)
+>>>>>>> d24c6227846a1aff564d114b95ca23eac403b746
 
     # =========================================================
     # Validation inference logic
@@ -385,7 +475,11 @@ def define_graph(return_key=None):
     valid_prediction = tf.nn.softmax(valid_logits)
 
     # Perplexity related operation
+<<<<<<< HEAD
     valid_perplexity_without_exp = tf.reduce_sum(valid_labels_ohe * -tf.math.log(valid_prediction + 1e-10))
+=======
+    valid_perplexity_without_exp = tf.reduce_sum(valid_labels_ohe * -tf.log(valid_prediction + 1e-10))
+>>>>>>> d24c6227846a1aff564d114b95ca23eac403b746
 
     # ## Calculating LSTM Loss
     # We calculate the training loss of the LSTM here. It's a typical cross entropy loss calculated over all the scores we obtained for training data (`loss`) and averaged and summed in a specific way.
@@ -403,6 +497,7 @@ def define_graph(return_key=None):
 
     loss = tf.reduce_sum(loss)
 
+<<<<<<< HEAD
     return_dict = {
         "for_train": (train_inputs, train_labels, train_perplexity_without_exp,
                       valid_inputs, valid_labels, valid_perplexity_without_exp, loss),
@@ -481,6 +576,8 @@ if __name__ == "__main__":
     train_inputs, train_labels, train_perplexity_without_exp, \
     valid_inputs, valid_labels, valid_perplexity_without_exp, loss = define_graph()
 
+=======
+>>>>>>> d24c6227846a1aff564d114b95ca23eac403b746
     # ## Defining Learning Rate and the Optimizer with Gradient Clipping
     # Here we define the learning rate and the optimizer we're going to use. We will be using the Adam optimizer as it is one of the best optimizers out there. Furthermore we use gradient clipping to prevent any gradient explosions.
 
