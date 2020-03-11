@@ -1,0 +1,22 @@
+# SentEval data and .pyc files
+
+
+
+# python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# log files
+*.log
+*.txt
+
+# pickle files
+*.pkl
+
+# datasets
+dataset/SNLI/
+dataset/MultiNLI/
+dataset/AllNLI/
+dataset/GloVe
+dataset/fastText

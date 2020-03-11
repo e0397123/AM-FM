@@ -8,7 +8,6 @@ from lm import ArpaLM
 import os
 from tqdm import tqdm
 
-
 logging.basicConfig(level=logging.DEBUG,
                     format='%(asctime)s - %(filename)s[line:%(lineno)d] - %(levelname)s: %(message)s')
 
@@ -16,6 +15,7 @@ parser = argparse.ArgumentParser()
 parser.add_argument("--hyp_file", type=str, help="path to hypothesis file")
 parser.add_argument("--ref_file", type=str, help="path to reference file")
 args = parser.parse_args()
+
 
 class calcScoresAMFM:
     def __init__(self, cfg):
@@ -27,7 +27,7 @@ class calcScoresAMFM:
 
     def load_models(self, prefix):
         # Check that the LM model exists
-        lm_model = self.models_dir + '/' + prefix +  '.'  + str(self.NGRAM_ORDER) + '.lm'
+        lm_model = self.models_dir + '/' + prefix + '.' + str(self.NGRAM_ORDER) + '.lm'
         if not os.path.exists(lm_model):
             logging.info("******* ERROR: LM file " + lm_model + ' does not exists.')
             exit(-1)
@@ -54,7 +54,7 @@ class calcScoresAMFM:
         prob_ref = 0.0
         # Calculates the log-prob for the different n-grams
         for i in range(1, len(aWords)):
-            prob_ref += self.lm.score(tuple(aWords[max(0, i-self.NGRAM_ORDER+1):i+1]))
+            prob_ref += self.lm.score(tuple(aWords[max(0, i - self.NGRAM_ORDER + 1):i + 1]))
 
         sent = '<s> ' + tst.strip() + ' </s>'
         aWords = sent.split()
@@ -62,12 +62,12 @@ class calcScoresAMFM:
         prob_tst = 0.0
         # Calculates the log-prob for the different n-grams
         for i in range(1, len(aWords)):
-            prob_tst += self.lm.score(tuple(aWords[max(0, i-self.NGRAM_ORDER+1):i+1]))
+            prob_tst += self.lm.score(tuple(aWords[max(0, i - self.NGRAM_ORDER + 1):i + 1]))
 
         # Calculate the scaled probability
         prob_ref = np.exp(prob_ref / num_words_ref)
         prob_tst = np.exp(prob_tst / num_words_tst)
-        return 1.0 - ((max(prob_tst, prob_ref) - min(prob_tst, prob_ref))/max(prob_tst, prob_ref))
+        return 1.0 - ((max(prob_tst, prob_ref) - min(prob_tst, prob_ref)) / max(prob_tst, prob_ref))
 
     # # Pre-Processing for each sentence. In the case of languages different to English we perform tokenization
     # # per character
@@ -77,7 +77,7 @@ class calcScoresAMFM:
 
     #     # Remove some punctuation
     #     s = s.translate(self.table)
-            
+
     #     tokens = s.split()
 
     #     new_tokens = []
@@ -118,9 +118,9 @@ class calcScoresAMFM:
                 if (i + 1) % 2000 == 0:
                     hyp_per_all_sys.append(hyp_per_sys)
                     hyp_per_sys = []
-            
+
             hyp_per_dialogues = []
-            hyp_per_single_dialogue =[]
+            hyp_per_single_dialogue = []
             for i, item in enumerate(hyp_per_all_sys[0]):
                 hyp_per_single_dialogue.append(item)
                 hyp_per_single_dialogue.append(hyp_per_all_sys[1][i])
@@ -156,7 +156,7 @@ class calcScoresAMFM:
                     ref_per_sys = []
 
             ref_per_dialogues = []
-            ref_per_single_dialogue =[]
+            ref_per_single_dialogue = []
             for i, item in enumerate(ref_per_all_sys[0]):
                 ref_per_single_dialogue.append(item)
                 ref_per_single_dialogue.append(ref_per_all_sys[1][i])
@@ -173,7 +173,6 @@ class calcScoresAMFM:
                 ref_per_single_dialogue = []
 
             assert len(ref_per_dialogues) == 2000, 'number of references test cases not equal to 2000'
-
 
             # Calculate for each submitted sentence, given the reference, the AM, FM and combined scores
             results = []
@@ -196,9 +195,9 @@ class calcScoresAMFM:
             logging.info('********* END PROCESSING SUBMISSION ************\n')
         except Exception as e:
             logging.info(e)
-            logging.info ('ERROR: Skipping submissions %s' % (args.hyp_file))
+            logging.info('ERROR: Skipping submissions %s' % (args.hyp_file))
 
-    
+
 def main():
     import configuration as cfg
 
@@ -209,5 +208,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-    
-    

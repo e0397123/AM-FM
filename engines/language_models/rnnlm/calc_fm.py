@@ -5,7 +5,6 @@ import codecs
 import numpy as np
 from tqdm import tqdm
 
-
 logging.basicConfig(level=logging.DEBUG,
                     format='%(asctime)s - %(filename)s[line:%(lineno)d] - %(levelname)s: %(message)s')
 
@@ -21,16 +20,18 @@ def calc_fm_batch(hyp_list, ref_list):
         temp = []
         for ref in ref_list:
             temp.append(calc_fm(hyp, ref))
-        per_sys_score.append(np.amax(temp)-np.amin(temp))
-#        per_sys_score.append(np.amax(temp))
-#        per_sys_score.append(np.amin(temp))
-#        per_sys_score.append(np.mean(temp))
+        per_sys_score.append(np.amax(temp) - np.amin(temp))
+        # per_sys_score.append(np.amax(temp))
+        # per_sys_score.append(np.amin(temp))
+        # per_sys_score.append(np.mean(temp))
     return per_sys_score
 
-def calc_fm(hyp, ref):
-    return min(1/hyp, 1/ref)/max(1/hyp, 1/ref)
 
-if __name__=='__main__':
+def calc_fm(hyp, ref):
+    return min(1 / hyp, 1 / ref) / max(1 / hyp, 1 / ref)
+
+
+if __name__ == '__main__':
 
     logging.info("Reading hypothesis perplexity -------------------------------------------------------")
     hyp_sent_ppl = []
@@ -52,9 +53,9 @@ if __name__=='__main__':
         if (i + 1) % 2000 == 0:
             hyp_per_all_sys.append(hyp_per_sys)
             hyp_per_sys = []
-    
+
     hyp_per_dialogues = []
-    hyp_per_single_dialogue =[]
+    hyp_per_single_dialogue = []
     for i, item in enumerate(hyp_per_all_sys[0]):
         hyp_per_single_dialogue.append(item)
         hyp_per_single_dialogue.append(hyp_per_all_sys[1][i])
@@ -90,7 +91,7 @@ if __name__=='__main__':
             ref_per_sys = []
 
     ref_per_dialogues = []
-    ref_per_single_dialogue =[]
+    ref_per_single_dialogue = []
     for i, item in enumerate(ref_per_all_sys[0]):
         ref_per_single_dialogue.append(item)
         ref_per_single_dialogue.append(ref_per_all_sys[1][i])
@@ -119,6 +120,3 @@ if __name__=='__main__':
     logging.info('The final system level scores:')
     for score in system_level_scores.tolist():
         print(score)
-
-    
-    
