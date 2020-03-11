@@ -32,7 +32,7 @@ engines/embedding_models/InferSent/fastText/*
 # Don't ignore
 !*.md
 !*.gitkeep
-!*.keep
+
 
 
 
