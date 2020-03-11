@@ -33,7 +33,6 @@ sc = set(['-', "'", '%', '#', '@', '<', '>'])
 to_remove = ''.join([c for c in string.punctuation if c not in sc])
 table = dict((ord(char), u'') for char in to_remove)
 
-
 root_dir = os.path.dirname(os.path.realpath(__file__))
 submissions_dir = root_dir + '/'
 train_data_dir = root_dir + '/'
@@ -49,9 +48,9 @@ aTypeLingualExp = ['mono']
 monoSizesSVD = dict()
 crossSizesSVD = dict()
 aSizesTrain = [NUM_TRAIN_SENTS]
-monoSizesSVD[NUM_TRAIN_SENTS] = [100, 200, 300, 500, 1000, 2000, 2500]  # The last one must be always the maximum value of the model
+monoSizesSVD[NUM_TRAIN_SENTS] = [100, 200, 300, 500, 1000, 2000,
+                                 2500]  # The last one must be always the maximum value of the model
 crossSizesSVD[NUM_TRAIN_SENTS] = [50, 100, 150, 250]
-
 
 # Relative path for files to be used for training the language models (they can be different to the training data for
 # the system (however in most cases will be the same). Each entry is processed separately
@@ -92,31 +91,31 @@ filesPerLanguage = {
 submissionsPerLanguagePerTask = {
     'usr-sys': {
         'twitter': {
-           'source': 'twitter/eval.usr',  # The source parallel file
-           'reference': 'dstc6_t2_evaluation/references/original_refs.txt',  # The target reference
-           'test_id': 'twitter_eval',  # An identifier for the task
-           'submissions': [  # The actual prediction of different systems for the target language
-               'dstc6_t2_evaluation/hypotheses/S_1.txt',
-               'dstc6_t2_evaluation/hypotheses/S_2.txt',
-               'dstc6_t2_evaluation/hypotheses/S_3.txt',
-               'dstc6_t2_evaluation/hypotheses/S_4.txt',
-               'dstc6_t2_evaluation/hypotheses/S_5.txt',
-               'dstc6_t2_evaluation/hypotheses/S_6.txt',
-               'dstc6_t2_evaluation/hypotheses/S_7.txt',
-               'dstc6_t2_evaluation/hypotheses/S_8.txt',
-               'dstc6_t2_evaluation/hypotheses/S_9.txt',
-               'dstc6_t2_evaluation/hypotheses/S_10.txt',
-               'dstc6_t2_evaluation/hypotheses/S_11.txt',
-               'dstc6_t2_evaluation/hypotheses/S_12.txt',
-               'dstc6_t2_evaluation/hypotheses/S_13.txt',
-               'dstc6_t2_evaluation/hypotheses/S_14.txt',
-               'dstc6_t2_evaluation/hypotheses/S_15.txt',
-               'dstc6_t2_evaluation/hypotheses/S_16.txt',
-               'dstc6_t2_evaluation/hypotheses/S_17.txt',
-               'dstc6_t2_evaluation/hypotheses/S_18.txt',
-               'dstc6_t2_evaluation/hypotheses/S_19.txt',
-               'dstc6_t2_evaluation/hypotheses/S_20.txt',
-           ],
+            'source': 'twitter/eval.usr',  # The source parallel file
+            'reference': 'dstc6_t2_evaluation/references/original_refs.txt',  # The target reference
+            'test_id': 'twitter_eval',  # An identifier for the task
+            'submissions': [  # The actual prediction of different systems for the target language
+                'dstc6_t2_evaluation/hypotheses/S_1.txt',
+                'dstc6_t2_evaluation/hypotheses/S_2.txt',
+                'dstc6_t2_evaluation/hypotheses/S_3.txt',
+                'dstc6_t2_evaluation/hypotheses/S_4.txt',
+                'dstc6_t2_evaluation/hypotheses/S_5.txt',
+                'dstc6_t2_evaluation/hypotheses/S_6.txt',
+                'dstc6_t2_evaluation/hypotheses/S_7.txt',
+                'dstc6_t2_evaluation/hypotheses/S_8.txt',
+                'dstc6_t2_evaluation/hypotheses/S_9.txt',
+                'dstc6_t2_evaluation/hypotheses/S_10.txt',
+                'dstc6_t2_evaluation/hypotheses/S_11.txt',
+                'dstc6_t2_evaluation/hypotheses/S_12.txt',
+                'dstc6_t2_evaluation/hypotheses/S_13.txt',
+                'dstc6_t2_evaluation/hypotheses/S_14.txt',
+                'dstc6_t2_evaluation/hypotheses/S_15.txt',
+                'dstc6_t2_evaluation/hypotheses/S_16.txt',
+                'dstc6_t2_evaluation/hypotheses/S_17.txt',
+                'dstc6_t2_evaluation/hypotheses/S_18.txt',
+                'dstc6_t2_evaluation/hypotheses/S_19.txt',
+                'dstc6_t2_evaluation/hypotheses/S_20.txt',
+            ],
         },
     },
 }

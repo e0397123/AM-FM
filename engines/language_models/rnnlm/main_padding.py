@@ -22,7 +22,7 @@ flags.DEFINE_string('hyp_out', 'twitter', 'folder path to save hypothesis perple
 flags.DEFINE_string('ref_out', 'twitter', 'folder path to save reference perplexity')
 flags.DEFINE_integer('batch_size', 100, "number of samples in each batch.")
 flags.DEFINE_integer('seq_len', 50, "fix the sequence length")
-flags.DEFINE_integer('embedding_size', 300 , 'specify embedding dimension')
+flags.DEFINE_integer('embedding_size', 300, 'specify embedding dimension')
 flags.DEFINE_integer('num_epochs', 200, "number of epochs to run")
 flags.DEFINE_integer('decay_threshold', 5, 'learning rate decay after decay_threshold epochs')
 flags.DEFINE_integer('valid_summary', 1, 'validation interval')
@@ -35,9 +35,8 @@ flags.DEFINE_boolean('do_dstc_eval', False, 'whether to run computation of dstc 
 flags.DEFINE_list('num_nodes', '150,105,70', 'hidden layer size')
 flags.DEFINE_float('dropout', 0.2, 'dropout rate')
 flags.DEFINE_float('learning_rate', 0.01, 'learning rate')
-flags.DEFINE_float('decay_rate', 0.5,'learning rate decay rate')
+flags.DEFINE_float('decay_rate', 0.5, 'learning rate decay rate')
 flags.DEFINE_float('gradient_clipping', 5.0, 'gradient clipping')
-
 
 FLAGS = flags.FLAGS
 
@@ -45,6 +44,7 @@ if FLAGS.use_sp:
     # load sentencepiece tokenizer
     sp = spm.SentencePieceProcessor()
     sp.Load(FLAGS.tokenizer_path)
+
 
 # function for reading data from each input file
 def read_data(filename):
@@ -72,6 +72,7 @@ def read_data(filename):
         padded_data.extend(temp_line)
         mask.extend(temp_mask)
     return padded_data, max_count, mask
+
 
 # function for converting tokenized list to idx
 def build_dataset(documents):
@@ -118,7 +119,7 @@ def build_dataset(documents):
 
 def learn_w2v(num_files, data_list, reverse_dictionary, embedding_size, vocabulary_size, embed_name, data_len):
     ## CBOW: Learning Word Vectors
-    word2vec.define_data_and_hyperparameters(num_files, data_list, reverse_dictionary, embedding_size, vocabulary_size) 
+    word2vec.define_data_and_hyperparameters(num_files, data_list, reverse_dictionary, embedding_size, vocabulary_size)
     word2vec.print_some_batches()
     word2vec.define_word2vec_tensorflow()
 
@@ -197,20 +198,21 @@ class DataGeneratorSeq(object):
 # Learning rate decay logic
 
 def decay_learning_rate(session, v_perplexity):
-    global decay_threshold, decay_count, min_perplexity  
+    global decay_threshold, decay_count, min_perplexity
     # Decay learning rate
     if v_perplexity < min_perplexity:
-      decay_count = 0
-      min_perplexity= v_perplexity
+        decay_count = 0
+        min_perplexity = v_perplexity
     else:
-      decay_count += 1
+        decay_count += 1
 
     if decay_count >= decay_threshold:
-      print('\t Reducing learning rate')
-      decay_count = 0
-      session.run(inc_gstep)
+        print('\t Reducing learning rate')
+        decay_count = 0
+        session.run(inc_gstep)
 
-if __name__=="__main__":
+
+if __name__ == "__main__":
 
     num_files = 3
     dir_name = os.path.join(FLAGS.data_path, FLAGS.dataset)
@@ -258,7 +260,6 @@ if __name__=="__main__":
     embedding_name = os.path.join(model_path, FLAGS.embedding_name)
     learn_w2v(num_files, data_list, reverse_dictionary, FLAGS.embedding_size, vocabulary_size, embedding_name, data_len)
 
-
     # =========================================================
     # Define Graph
 
@@ -290,14 +291,12 @@ if __name__=="__main__":
     valid_masks = tf.placeholder(tf.float32, shape=[1], name='valid_masks')
     valid_labels_ohe = tf.one_hot(valid_labels, vocabulary_size)
 
-
     # ## Loading Word Embeddings to TensorFlow
     # We load the previously learned and stored embeddings to TensorFlow and define tensors to hold embeddings
     embed_mat = np.load(embedding_name)
     embeddings_size = embed_mat.shape[1]
     embed_init = tf.constant(embed_mat)
     embeddings = tf.Variable(embed_init, name='embeddings')
-
 
     # Defining embedding lookup operations for all the unrolled
     # trianing inputs
@@ -323,7 +322,7 @@ if __name__=="__main__":
     print('Defining softmax weights and biases')
     # Softmax Classifier weights and biases.
     w = tf.Variable(tf.truncated_normal([num_nodes[-1], vocabulary_size], stddev=0.01))
-    b = tf.Variable(tf.random_uniform([vocabulary_size],0.0,0.01))
+    b = tf.Variable(tf.random_uniform([vocabulary_size], 0.0, 0.01))
 
     print('Defining the LSTM cell')
     # Defining a deep LSTM from Tensorflow RNN API
@@ -336,8 +335,8 @@ if __name__=="__main__":
     dropout_cells = [
         rnn.DropoutWrapper(
             cell=lstm, input_keep_prob=1.0,
-            output_keep_prob=1.0-FLAGS.dropout, state_keep_prob=1.0,
-            variational_recurrent=True, 
+            output_keep_prob=1.0 - FLAGS.dropout, state_keep_prob=1.0,
+            variational_recurrent=True,
             input_size=tf.TensorShape([embeddings_size]),
             dtype=tf.float32
         ) for lstm in cells
@@ -349,7 +348,6 @@ if __name__=="__main__":
     # Here we define a MultiRNNCell that does not use dropout
     # Validation and Testing
     stacked_cell = tf.nn.rnn_cell.MultiRNNCell(cells)
-
 
     # ## Defining LSTM Computations
     # Here first we define the LSTM cell computations as a consice function. Then we use this function to define training and test-time inference logic.
@@ -363,12 +361,12 @@ if __name__=="__main__":
 
     # Defining the LSTM cell computations (training)
     train_outputs, initial_state = tf.nn.dynamic_rnn(
-        stacked_dropout_cell, tf.concat(train_inputs_embeds,axis=0), 
+        stacked_dropout_cell, tf.concat(train_inputs_embeds, axis=0),
         time_major=True, initial_state=initial_state
     )
 
     # Reshape the final outputs to [seq_len*batch_size, num_nodes]
-    final_output = tf.reshape(train_outputs,[-1,num_nodes[-1]])
+    final_output = tf.reshape(train_outputs, [-1, num_nodes[-1]])
 
     # Computing logits
     logits = tf.matmul(final_output, w) + b
@@ -376,14 +374,15 @@ if __name__=="__main__":
     train_prediction = tf.nn.softmax(logits)
 
     # Reshape logits to time-major fashion [seq_len, batch_size, vocabulary_size]
-    time_major_train_logits = tf.reshape(logits, [train_count, FLAGS.batch_size,-1])
+    time_major_train_logits = tf.reshape(logits, [train_count, FLAGS.batch_size, -1])
 
     # We create train labels in a time major fashion [seq_len, batch_size, vocabulary_size]
     # so that this could be used with the loss function
-    time_major_train_labels = tf.reshape(tf.concat(train_labels,axis=0),[train_count, FLAGS.batch_size])
+    time_major_train_labels = tf.reshape(tf.concat(train_labels, axis=0), [train_count, FLAGS.batch_size])
 
     # Perplexity related operation
-    train_perplexity_without_exp = tf.reduce_sum(tf.concat(train_labels_ohe,0)*-tf.log(train_prediction+1e-10))/(train_count*FLAGS.batch_size)
+    train_perplexity_without_exp = tf.reduce_sum(tf.concat(train_labels_ohe, 0) * -tf.log(train_prediction + 1e-10)) / (
+            train_count * FLAGS.batch_size)
 
     # =========================================================
     # Validation inference logic
@@ -393,12 +392,12 @@ if __name__=="__main__":
 
     # Validation input related LSTM computation
     valid_outputs, initial_valid_state = tf.nn.dynamic_rnn(
-        stacked_cell, tf.expand_dims(valid_inputs_embeds,0), 
+        stacked_cell, tf.expand_dims(valid_inputs_embeds, 0),
         time_major=True, initial_state=initial_valid_state
     )
 
     # Reshape the final outputs to [1, num_nodes]
-    final_valid_output = tf.reshape(valid_outputs,[-1,num_nodes[-1]])
+    final_valid_output = tf.reshape(valid_outputs, [-1, num_nodes[-1]])
 
     # Computing logits
     valid_logits = tf.matmul(final_valid_output, w) + b
@@ -406,8 +405,7 @@ if __name__=="__main__":
     valid_prediction = tf.nn.softmax(valid_logits)
 
     # Perplexity related operation
-    valid_perplexity_without_exp = tf.reduce_sum(valid_labels_ohe*-tf.log(valid_prediction+1e-10))
-
+    valid_perplexity_without_exp = tf.reduce_sum(valid_labels_ohe * -tf.log(valid_prediction + 1e-10))
 
     # ## Calculating LSTM Loss
     # We calculate the training loss of the LSTM here. It's a typical cross entropy loss calculated over all the scores we obtained for training data (`loss`) and averaged and summed in a specific way.
@@ -416,28 +414,26 @@ if __name__=="__main__":
     # We calculate the average across the batches
     # But get the sum across the sequence length
     loss = tf.contrib.seq2seq.sequence_loss(
-        logits = tf.transpose(time_major_train_logits,[1,0,2]),
-        targets = tf.transpose(time_major_train_labels),
-        weights= tf.ones([FLAGS.batch_size, train_count], dtype=tf.float32),
+        logits=tf.transpose(time_major_train_logits, [1, 0, 2]),
+        targets=tf.transpose(time_major_train_labels),
+        weights=tf.ones([FLAGS.batch_size, train_count], dtype=tf.float32),
         average_across_timesteps=False,
         average_across_batch=True
     )
 
     loss = tf.reduce_sum(loss)
 
-
     # ## Defining Learning Rate and the Optimizer with Gradient Clipping
     # Here we define the learning rate and the optimizer we're going to use. We will be using the Adam optimizer as it is one of the best optimizers out there. Furthermore we use gradient clipping to prevent any gradient explosions.
 
     # In[30]:
-
 
     # Used for decaying learning rate
     gstep = tf.Variable(0, trainable=False)
 
     # Running this operation will cause the value of gstep
     # to increase, while in turn reducing the learning rate
-    inc_gstep = tf.assign(gstep, gstep+1)
+    inc_gstep = tf.assign(gstep, gstep + 1)
 
     # Adam Optimizer. And gradient clipping.
     tf_learning_rate = tf.train.exponential_decay(0.001, gstep, decay_steps=1, decay_rate=FLAGS.decay_rate)
@@ -449,7 +445,7 @@ if __name__=="__main__":
     optimizer = optimizer.apply_gradients(
         zip(gradients, v))
 
-    inc_gstep = tf.assign(gstep, gstep+1)
+    inc_gstep = tf.assign(gstep, gstep + 1)
 
     # ### Learning rate Decay Logic
     # 
@@ -475,18 +471,14 @@ if __name__=="__main__":
     tf.global_variables_initializer().run()
     print('Initialized')
 
-
     train_gen = DataGeneratorSeq(data_list[0], train_mask, FLAGS.batch_size, train_count)
     # Defining the validation data generator
-    valid_gen = DataGeneratorSeq(data_list[1],valid_mask,1,1)
-    test_gen =  DataGeneratorSeq(data_list[2],test_mask,1,1)
-
-
+    valid_gen = DataGeneratorSeq(data_list[1], valid_mask, 1, 1)
+    test_gen = DataGeneratorSeq(data_list[2], test_mask, 1, 1)
 
     train_steps_per_document = train_gen.get_iterate_steps()
     valid_steps_per_document = valid_gen.get_iterate_steps()
     test_steps_per_document = test_gen.get_iterate_steps()
-
 
     feed_dict = {}
     average_loss = 0
@@ -496,29 +488,30 @@ if __name__=="__main__":
         if FLAGS.do_reload:
             saver.restore(session, tf.train.latest_checkpoint(model_path))
         for step in range(FLAGS.num_epochs):
-            print('Training (Epoch: %d)'%step)
+            print('Training (Epoch: %d)' % step)
             for doc_step_id in tqdm(range(train_steps_per_document)):
                 u_data, u_labels, u_masks = train_gen.unroll_batches()
                 for ui, (dat, lbl, mask) in enumerate(zip(u_data, u_labels, u_masks)):
                     feed_dict[train_inputs[ui]] = dat
                     feed_dict[train_labels[ui]] = lbl
                     feed_dict[train_masks[ui]] = mask
-                feed_dict.update({tf_learning_rate:FLAGS.learning_rate})
-                _, l, step_perplexity = session.run([optimizer, loss, train_perplexity_without_exp], feed_dict=feed_dict)
+                feed_dict.update({tf_learning_rate: FLAGS.learning_rate})
+                _, l, step_perplexity = session.run([optimizer, loss, train_perplexity_without_exp],
+                                                    feed_dict=feed_dict)
                 average_loss += step_perplexity
-            print('')          
-           
-            if (step+1) % FLAGS.valid_summary == 0:
-             
-                average_loss = average_loss / (train_steps_per_document*FLAGS.valid_summary)
+            print('')
+
+            if (step + 1) % FLAGS.valid_summary == 0:
+
+                average_loss = average_loss / (train_steps_per_document * FLAGS.valid_summary)
                 # The average loss is an estimate of the loss over the last 2000 batches.
-                print('Average loss at step %d: %f' % (step+1, average_loss))
-                print('\tPerplexity at step %d: %f' %(step+1, np.exp(average_loss)))
+                print('Average loss at step %d: %f' % (step + 1, average_loss))
+                print('\tPerplexity at step %d: %f' % (step + 1, np.exp(average_loss)))
                 train_perplexity_ot.append(np.exp(average_loss))
-                average_loss = 0 # reset loss
-               
-                valid_loss = 0 # reset loss
-                 
+                average_loss = 0  # reset loss
+
+                valid_loss = 0  # reset loss
+
                 # calculate valid perplexity
                 count = 0
                 for v_step in tqdm(range(valid_steps_per_document)):
@@ -527,7 +520,8 @@ if __name__=="__main__":
                         # Run validation phase related TensorFlow operations
                         v_perp = session.run(
                             valid_perplexity_without_exp,
-                           feed_dict={valid_inputs: uvalid_data[0], valid_labels: uvalid_labels[0], valid_masks: uvalid_masks[0]}
+                            feed_dict={valid_inputs: uvalid_data[0], valid_labels: uvalid_labels[0],
+                                       valid_masks: uvalid_masks[0]}
                         )
                         valid_loss += v_perp
                         count += 1
@@ -541,10 +535,10 @@ if __name__=="__main__":
                 if v_perplexity < best_perplexity:
                     saver.save(session, os.path.join(model_path, 'model-{:.2f}'.format(v_perplexity)))
                     best_perplexity = v_perplexity
-                   
+
                 decay_learning_rate(session, v_perplexity)
-    
-    if FLAGS.do_eval:    
+
+    if FLAGS.do_eval:
         # load best model
         saver.restore(session, tf.train.latest_checkpoint(model_path))
         # evaluate test set
@@ -569,14 +563,13 @@ if __name__=="__main__":
         t_perplexity = np.exp(test_loss / (count))
         print("test Perplexity: %.2f\n" % t_perplexity)
 
-
     if FLAGS.do_dstc_eval:
 
         # load hypothesis and references
         hyp_list, hyp_count, hyp_mask = read_data(os.path.join(dir_name, 'hyp_clean.txt'))
         splitted_hyp = []
         for i in range(len(hyp_list) // hyp_count):
-            splitted_hyp.append(hyp_list[i*hyp_count:(i+1)*hyp_count])
+            splitted_hyp.append(hyp_list[i * hyp_count:(i + 1) * hyp_count])
         print('total length of splitted hypothesis: {}'.format(len(splitted_hyp)))
 
         splitted_hyp = [[dictionary[token] if token in dictionary.keys() else dictionary['<unk>'] for token in item] for
@@ -585,7 +578,7 @@ if __name__=="__main__":
         ref_list, ref_count, ref_mask = read_data(os.path.join(dir_name, 'ref_clean.txt'))
         splitted_ref = []
         for i in range(len(ref_list) // ref_count):
-            splitted_ref.append(ref_list[i*ref_count:(i+1)*ref_count])
+            splitted_ref.append(ref_list[i * ref_count:(i + 1) * ref_count])
 
         print('total length of splitted references: {}'.format(len(splitted_ref)))
 
@@ -606,7 +599,7 @@ if __name__=="__main__":
                 if token == 1:
                     break
                 utest_data.append(token)
-            utest_labels =[]
+            utest_labels = []
             for token in item[1:]:
                 if token == 3:
                     break
@@ -639,7 +632,7 @@ if __name__=="__main__":
                 if token == 1:
                     break
                 utest_data.append(token)
-            utest_labels =[]
+            utest_labels = []
             for token in item[1:]:
                 if token == 3:
                     break

@@ -20,13 +20,13 @@ __author__ = "David Huggins-Daines <dhuggins@cs.cmu.edu>"
 __version__ = "$Revision: 7505 $"
 """
 
-
 import numpy
 import gzip
 import re
 import codecs  # DSTC5: Include to allow reading files with UTF-8
 
 LOG10TOLOG = numpy.log(10)
+
 
 class ArpaLM(object):
     "Class for reading ARPA-format language models"
@@ -83,8 +83,9 @@ class ArpaLM(object):
         # Create probability/backoff arrays
         self.n = max(self.ng_counts.keys())
         self.ngrams = []
-        for n in range(1,self.n+1):
-            vals = numpy.zeros((self.ng_counts[n]+1,2),'d')  # DSTC4: Add 1 more position for the unk case just in case it does not exists
+        for n in range(1, self.n + 1):
+            vals = numpy.zeros((self.ng_counts[n] + 1, 2),
+                               'd')  # DSTC4: Add 1 more position for the unk case just in case it does not exists
             self.ngrams.append(vals)
             self.ngmap.append({})
 
@@ -102,23 +103,23 @@ class ArpaLM(object):
 
             # DSTC4: Allows ARPA models without Backoff weights for each n-gram (e.g. typical configuration in srilm)
             try:
-                p,w,b = spam.split()
+                p, w, b = spam.split()
             except:
-                p,w = spam.split()
+                p, w = spam.split()
                 b = 0.0
 
             self.ngmap[0][w] = wordid
             self.widmap.append(w)
-            self.ngrams[0][wordid,:] = (float(p) * LOG10TOLOG,
-                                        float(b) * LOG10TOLOG)
+            self.ngrams[0][wordid, :] = (float(p) * LOG10TOLOG,
+                                         float(b) * LOG10TOLOG)
             wordid = wordid + 1
 
         # DSTC4: In case the unk does not exists in the model, it gives the zero-gram probability
         if '<unk>' not in self.ngmap[0]:
             self.ngmap[0]['<unk>'] = wordid
             self.widmap.append('<unk>')
-            self.ngrams[0][wordid,:] = (float(numpy.log10(1.0/wordid)) * LOG10TOLOG,
-                                        float(0) * LOG10TOLOG)
+            self.ngrams[0][wordid, :] = (float(numpy.log10(1.0 / wordid)) * LOG10TOLOG,
+                                         float(0) * LOG10TOLOG)
 
         # Read N-grams
         r = re.compile(r"\\(\d+)-grams:")
@@ -153,8 +154,8 @@ class ArpaLM(object):
                         ng = tuple(spam[1:])
                         b = 0.0
                 # N-Gram info
-                self.ngrams[n-1][ngramid,:] = p, b
-                self.ngmap[n-1][ng] = ngramid
+                self.ngrams[n - 1][ngramid, :] = p, b
+                self.ngmap[n - 1][ng] = ngramid
 
                 # Successor list for N-1-Gram
                 mgram = tuple(ng[:-1])
@@ -177,24 +178,24 @@ class ArpaLM(object):
             fh = open(path, 'w')
         fh.write("# Written by arpalm.py\n")
         fh.write("\\data\\\n")
-        for n in range(1, self.n+1):
+        for n in range(1, self.n + 1):
             fh.write("ngram %d=%d\n" % (n, self.ng_counts[n]))
-        for n in range(1, self.n+1):
+        for n in range(1, self.n + 1):
             fh.write("\n\\%d-grams:\n" % n)
-            ngrams = self.ngmap[n-1].keys()
+            ngrams = self.ngmap[n - 1].keys()
             ngrams.sort()
-            if '<unk>' in self.ngmap[n-1]:
-                ngid = self.ngmap[n-1]['<unk>']
-                score, bowt = self.ngrams[n-1][ngid]
+            if '<unk>' in self.ngmap[n - 1]:
+                ngid = self.ngmap[n - 1]['<unk>']
+                score, bowt = self.ngrams[n - 1][ngid]
                 if n == self.n:
                     fh.write("%.4f <unk>\n" % (score))
                 else:
-                    fh.write("%.4f <unk>\t%.4f\n" % (score,bowt))
+                    fh.write("%.4f <unk>\t%.4f\n" % (score, bowt))
             for g in ngrams:
                 if g == '<unk>':
                     continue
-                ngid = self.ngmap[n-1][g]
-                score, bowt = self.ngrams[n-1][ngid]
+                ngid = self.ngmap[n - 1][g]
+                score, bowt = self.ngrams[n - 1][ngid]
                 if n > 1:
                     g = " ".join(g)
                 if n == self.n:
@@ -243,18 +244,18 @@ class ArpaLM(object):
             if symsT[0] in self.ngmap[0]:
                 # 1-Gram exists, just return its probability
                 v = self.ngrams[0][self.ngmap[0][symsT[0]]][0]
-                if verboseLevel > 1 : print("%s %d-gram %f" %(symsT[0], n, v))  # DSTC4 : Make the stdout less verbose
+                if verboseLevel > 1: print("%s %d-gram %f" % (symsT[0], n, v))  # DSTC4 : Make the stdout less verbose
                 return v
             else:
                 # Use <unk>
                 v = self.ngrams[0][self.ngmap[0]['<unk>']][0]
-                if verboseLevel > 1 : print("%s %d-gram %f" %('unk', n, v)) # DSTC4 : Make the stdout less verbose
+                if verboseLevel > 1: print("%s %d-gram %f" % ('unk', n, v))  # DSTC4 : Make the stdout less verbose
                 return v
         else:
-            if symsT in self.ngmap[n-1]:
+            if symsT in self.ngmap[n - 1]:
                 # N-Gram exists, just return its probability
-                v = self.ngrams[n-1][self.ngmap[n-1][symsT]][0]
-                if verboseLevel > 1 : print("%s %d-gram %f" %(symsT, n, v)) # DSTC4 : Make the stdout less verbose
+                v = self.ngrams[n - 1][self.ngmap[n - 1][symsT]][0]
+                if verboseLevel > 1: print("%s %d-gram %f" % (symsT, n, v))  # DSTC4 : Make the stdout less verbose
                 return v
             else:
                 # Backoff: alpha(history) * probability (N-1-Gram)
@@ -266,16 +267,16 @@ class ArpaLM(object):
                     # Back off to <unk> if word doesn't exist
                     if not hist in self.ngmap[0]:
                         hist = '<unk>'
-                if hist in self.ngmap[n-2]:
+                if hist in self.ngmap[n - 2]:
                     # Try to use the history if it exists
-                    bowt = self.ngrams[n-2][self.ngmap[n-2][hist]][1]
+                    bowt = self.ngrams[n - 2][self.ngmap[n - 2][hist]][1]
                     v = bowt + self.score(*symsT)
-                    if verboseLevel > 1 : print("%s %d-gram %f" %(symsT, n, v)) # DSTC4 : Make the stdout less verbose
+                    if verboseLevel > 1: print("%s %d-gram %f" % (symsT, n, v))  # DSTC4 : Make the stdout less verbose
                     return v
                 else:
                     # Otherwise back off some more
                     v = self.score(*symsT)
-                    if verboseLevel > 1 : print("%s %d-gram %f" %(symsT, n, v)) # DSTC4 : Make the stdout less verbose
+                    if verboseLevel > 1: print("%s %d-gram %f" % (symsT, n, v))  # DSTC4 : Make the stdout less verbose
                     return v
 
     def adapt_rescale(self, unigram, vocab=None):
@@ -289,11 +290,11 @@ class ArpaLM(object):
             # Construct a temporary list mapping for the unigrams
             vmap = map(lambda w: self.ngmap[0][w], vocab)
             # Get the original unigrams
-            og = numpy.exp(self.ngrams[0][:,0].take(vmap))
+            og = numpy.exp(self.ngrams[0][:, 0].take(vmap))
             # Compute the individual scaling factors
             ascale = unigram * og.sum() / og
             # Put back the normalized version of unigram
-            self.ngrams[0][:,0].put(numpy.log(unigram * og.sum()), vmap)
+            self.ngrams[0][:, 0].put(numpy.log(unigram * og.sum()), vmap)
             # Now reconstruct vocab as a dictionary mapping words to
             # scaling factors
             vv = {}
@@ -301,32 +302,32 @@ class ArpaLM(object):
                 vv[w] = i
             vocab = vv
         else:
-            ascale = unigram / numpy.exp(self.ngrams[0][:,0])
-            self.ngrams[0][:,0] = numpy.log(unigram)
+            ascale = unigram / numpy.exp(self.ngrams[0][:, 0])
+            self.ngrams[0][:, 0] = numpy.log(unigram)
 
         for n in range(1, self.n):
             # Total discounted probabilities for each history
-            tprob = numpy.zeros(self.ngrams[n-1].shape[0], 'd')
+            tprob = numpy.zeros(self.ngrams[n - 1].shape[0], 'd')
             # Rescaled total probabilities
-            newtprob = numpy.zeros(self.ngrams[n-1].shape[0], 'd')
+            newtprob = numpy.zeros(self.ngrams[n - 1].shape[0], 'd')
             # For each N-gram, accumulate and rescale
-            for ng,idx in self.ngmap[n].iteritems():
+            for ng, idx in self.ngmap[n].iteritems():
                 h = ng[0:-1]
-                if n == 1: # Quirk of unigrams
+                if n == 1:  # Quirk of unigrams
                     h = h[0]
                 w = ng[-1]
-                prob = numpy.exp(self.ngrams[n][idx,0])
-                tprob[self.ngmap[n-1][h]] += prob
+                prob = numpy.exp(self.ngrams[n][idx, 0])
+                tprob[self.ngmap[n - 1][h]] += prob
                 if vocab == None or w in vocab:
                     prob = prob * ascale[vocab[w]]
-                newtprob[self.ngmap[n-1][h]] += prob
-                self.ngrams[n][idx,0] = numpy.log(prob)
+                newtprob[self.ngmap[n - 1][h]] += prob
+                self.ngrams[n][idx, 0] = numpy.log(prob)
             # Now renormalize everything
             norm = tprob / newtprob
-            for ng,idx in self.ngmap[n].iteritems():
+            for ng, idx in self.ngmap[n].iteritems():
                 h = ng[0:-1]
-                if n == 1: # Quirk of unigrams
+                if n == 1:  # Quirk of unigrams
                     h = h[0]
                 w = ng[-1]
-                prob = numpy.exp(self.ngrams[n][idx,0])
-                self.ngrams[n][idx,0] = numpy.log(prob * norm[self.ngmap[n-1][h]])
+                prob = numpy.exp(self.ngrams[n][idx, 0])
+                self.ngrams[n][idx, 0] = numpy.log(prob * norm[self.ngmap[n - 1][h]])

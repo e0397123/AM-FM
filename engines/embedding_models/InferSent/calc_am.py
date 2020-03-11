@@ -1,8 +1,10 @@
 import argparse
 import logging
 import string
-import codecs
 import numpy as np
+from numpy import linalg as LA
+import jsonlines
+from sklearn.metrics.pairwise import cosine_similarity
 from tqdm import tqdm
 
 logging.basicConfig(level=logging.DEBUG,
@@ -14,41 +16,30 @@ parser.add_argument("--ref_file", type=str, help="path to reference file")
 args = parser.parse_args()
 
 
-def calc_fm_batch(hyp_list, ref_list):
-    per_sys_score = []
-    for hyp in hyp_list:
-        temp = []
-        for ref in ref_list:
-            temp.append(calc_fm(hyp, ref))
-        per_sys_score.append(np.amax(temp) - np.amin(temp))
-        # per_sys_score.append(np.amax(temp))
-        # per_sys_score.append(np.amin(temp))
-        # per_sys_score.append(np.mean(temp))
-    return per_sys_score
+def calc_am_batch(hyp_list, ref_list):
+    score_mat = cosine_similarity(np.array(hyp_list), np.array(ref_list))
+    score_mat = np.amax(score_mat, axis=1).T
+    return score_mat
 
 
-def calc_fm(hyp, ref):
-    return min(1 / hyp, 1 / ref) / max(1 / hyp, 1 / ref)
+def absmaxND(a, axis=None):
+    amax = a.max(axis)
+    amin = a.min(axis)
+    return np.where(-amin > amax, amin, amax)
 
 
 if __name__ == '__main__':
 
-    logging.info("Reading hypothesis perplexity -------------------------------------------------------")
-    hyp_sent_ppl = []
-    with codecs.open(args.hyp_file, mode='r', encoding='utf-8') as rf:
-        for line in rf.readlines():
-            hyp_sent_ppl.append(float(line.strip()))
-
-    logging.info("Reading references perplexity -------------------------------------------------------")
-    ref_sent_ppl = []
-    with codecs.open(args.ref_file, mode='r', encoding='utf-8') as rf:
-        for line in rf.readlines():
-            ref_sent_ppl.append(float(line.strip()))
+    logging.info("Loading hypothesis features -------------------------------------------------------")
+    hyp_sent_embedding = np.load(args.hyp_file)
+    logging.info("Loading references features --------------------------------------------------------")
+    ref_sent_embedding = np.load(args.ref_file)
+    logging.info("Done loading references features ---------------------------------------------------")
 
     logging.info("rearranging test cases -------------------------------------------------------------")
     hyp_per_all_sys = []
     hyp_per_sys = []
-    for i, line in enumerate(hyp_sent_ppl):
+    for i, line in enumerate(tqdm(hyp_sent_embedding)):
         hyp_per_sys.append(line)
         if (i + 1) % 2000 == 0:
             hyp_per_all_sys.append(hyp_per_sys)
@@ -84,7 +75,7 @@ if __name__ == '__main__':
 
     ref_per_all_sys = []
     ref_per_sys = []
-    for i, line in enumerate(ref_sent_ppl):
+    for i, line in enumerate(tqdm(ref_sent_embedding)):
         ref_per_sys.append(line)
         if (i + 1) % 2000 == 0:
             ref_per_all_sys.append(ref_per_sys)
@@ -110,10 +101,10 @@ if __name__ == '__main__':
     assert len(ref_per_dialogues) == 2000, 'number of references test cases not equal to 2000'
     logging.info("Done rearranging test cases --------------------------------------------------------")
 
-    # calculate FM score
+    # calculate AM score
     full_scores = []
     for hyp, ref in zip(hyp_per_dialogues, ref_per_dialogues):
-        scores = calc_fm_batch(hyp, ref)
+        scores = calc_am_batch(hyp, ref)
         full_scores.append(scores)
     full_scores = np.array(full_scores)
     system_level_scores = np.mean(full_scores, axis=0)

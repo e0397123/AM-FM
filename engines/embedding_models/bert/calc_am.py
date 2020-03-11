@@ -7,15 +7,14 @@ import jsonlines
 from sklearn.metrics.pairwise import cosine_similarity
 from tqdm import tqdm
 
-
 logging.basicConfig(level=logging.DEBUG,
                     format='%(asctime)s - %(filename)s[line:%(lineno)d] - %(levelname)s: %(message)s')
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--hyp_file", type=str, help="path to hypothesis file")
 parser.add_argument("--ref_file", type=str, help="path to reference file")
-parser.add_argument("--strategy", type=str, 
-     help="am score computation strategy", default='top-layer-embedding-average')
+parser.add_argument("--strategy", type=str,
+                    help="am score computation strategy", default='top-layer-embedding-average')
 args = parser.parse_args()
 
 
@@ -24,13 +23,14 @@ def calc_am_batch(hyp_list, ref_list):
     score_mat = np.amax(score_mat, axis=1).T
     return score_mat
 
+
 def absmaxND(a, axis=None):
     amax = a.max(axis)
     amin = a.min(axis)
     return np.where(-amin > amax, amin, amax)
-    
 
-if __name__=='__main__':
+
+if __name__ == '__main__':
 
     logging.info("Loading hypothesis features -------------------------------------------------------")
     hyp_sent_embedding = []
@@ -41,13 +41,14 @@ if __name__=='__main__':
                 # embedding average
                 obj_emb = np.array([token['layers'][0]['values'] for token in obj['features']], dtype='float32')
                 obj_emb = np.sum(obj_emb, axis=0)
-                obj_emb =  obj_emb / LA.norm(obj_emb)
+                obj_emb = obj_emb / LA.norm(obj_emb)
             if args.strategy == 'all-layer-embedding-average':
                 # embedding average
                 obj_emb = np.array([token['layers'][0]['values'] + token['layers'][1]['values'] \
-                 + token['layers'][2]['values'] + token['layers'][3]['values'] for token in obj['features']], dtype='float32')
+                                    + token['layers'][2]['values'] + token['layers'][3]['values'] for token in
+                                    obj['features']], dtype='float32')
                 obj_emb = np.sum(obj_emb, axis=0)
-                obj_emb =  obj_emb / LA.norm(obj_emb)
+                obj_emb = obj_emb / LA.norm(obj_emb)
             elif args.strategy == 'top-layer-max-pool':
                 # top layer max pooling
                 obj_emb = np.array([token['layers'][0]['values'] for token in obj['features']], dtype='float32')
@@ -63,19 +64,22 @@ if __name__=='__main__':
             elif args.strategy == 'all-layer-concat-mean-pooling':
                 # all-layer-concat-mean-pooling
                 obj_emb = np.array([token['layers'][0]['values'] + token['layers'][1]['values'] \
-                 + token['layers'][2]['values'] + token['layers'][3]['values'] for token in obj['features']], dtype='float32')
+                                    + token['layers'][2]['values'] + token['layers'][3]['values'] for token in
+                                    obj['features']], dtype='float32')
                 obj_emb = np.mean(obj_emb, axis=0)
             elif args.strategy == 'all-layer-concat-max-pooling':
                 # all-layer-concat-mean-pooling
                 obj_emb = np.array([token['layers'][0]['values'] + token['layers'][1]['values'] \
-                 + token['layers'][2]['values'] + token['layers'][3]['values'] for token in obj['features']], dtype='float32')
+                                    + token['layers'][2]['values'] + token['layers'][3]['values'] for token in
+                                    obj['features']], dtype='float32')
                 obj_emb = np.max(obj_emb, axis=0)
             elif args.strategy == 'all-layer-mean-max-pooling':
                 # all-layer-mean-max-pooling
                 obj_emb = []
                 for token in obj['features']:
-                    temp = np.mean(np.array([token['layers'][0]['values'], token['layers'][1]['values'], 
-                    token['layers'][2]['values'], token['layers'][3]['values']], dtype='float32'), axis=0)
+                    temp = np.mean(np.array([token['layers'][0]['values'], token['layers'][1]['values'],
+                                             token['layers'][2]['values'], token['layers'][3]['values']],
+                                            dtype='float32'), axis=0)
                     obj_emb.append(temp)
                 obj_emb = np.array(obj_emb)
                 obj_emb = np.max(obj_emb, axis=0)
@@ -83,35 +87,36 @@ if __name__=='__main__':
                 # all-layer-mean-max-pooling
                 obj_emb = []
                 for token in obj['features']:
-                    temp = np.max(np.array([token['layers'][0]['values'], token['layers'][1]['values'], 
-                    token['layers'][2]['values'], token['layers'][3]['values']], dtype='float32'), axis=0)
+                    temp = np.max(np.array([token['layers'][0]['values'], token['layers'][1]['values'],
+                                            token['layers'][2]['values'], token['layers'][3]['values']],
+                                           dtype='float32'), axis=0)
                     obj_emb.append(temp)
                 obj_emb = np.array(obj_emb)
                 obj_emb = np.max(obj_emb, axis=0)
             elif args.strategy == 'all-layer-concat-vector-extrema':
                 # all-layer-concat-max-pooling
-                obj_emb = np.array([token['layers'][0]['values'] + token['layers'][1]['values'] + 
-                    token['layers'][2]['values'] + token['layers'][3]['values'] for token in obj['features']], dtype='float32')
+                obj_emb = np.array([token['layers'][0]['values'] + token['layers'][1]['values'] +
+                                    token['layers'][2]['values'] + token['layers'][3]['values'] for token in
+                                    obj['features']], dtype='float32')
                 obj_emb = absmaxND(obj_emb, axis=0)
             elif args.strategy == 'top-layer-concat-vector-extrema':
-                 # top-layer-vector-extrema
-                 obj_emb = np.array([token['layers'][0]['values'] for token in obj['features']], dtype='float32')
-                 obj_emb = absmaxND(obj_emb, axis=0)
+                # top-layer-vector-extrema
+                obj_emb = np.array([token['layers'][0]['values'] for token in obj['features']], dtype='float32')
+                obj_emb = absmaxND(obj_emb, axis=0)
             elif args.strategy == 'all-layer-addition-max-pooling':
-                 # all-layer-addition-max-pooling
-                 obj_emb = []
-                 for token in obj['features']:
-                     temp = np.array([token['layers'][0]['values'], token['layers'][1]['values'], 
-                     token['layers'][2]['values'], token['layers'][3]['values']], dtype='float32')
-                     temp = np.sum(temp, axis=0)
-                     obj_emb.append(temp)
-                 obj_emb = np.array(obj_emb)
-                 obj_emb = np.max(obj_emb, axis=0)       
+                # all-layer-addition-max-pooling
+                obj_emb = []
+                for token in obj['features']:
+                    temp = np.array([token['layers'][0]['values'], token['layers'][1]['values'],
+                                     token['layers'][2]['values'], token['layers'][3]['values']], dtype='float32')
+                    temp = np.sum(temp, axis=0)
+                    obj_emb.append(temp)
+                obj_emb = np.array(obj_emb)
+                obj_emb = np.max(obj_emb, axis=0)
             hyp_sent_embedding.append(obj_emb)
             tq.update(1)
     tq.close()
     logging.info("Done loading hypothesis features ---------------------------------------------------")
-
 
     logging.info("Loading references features --------------------------------------------------------")
     ref_sent_embedding = []
@@ -122,13 +127,14 @@ if __name__=='__main__':
                 # embedding average
                 obj_emb = np.array([token['layers'][0]['values'] for token in obj['features']], dtype='float32')
                 obj_emb = np.sum(obj_emb, axis=0)
-                obj_emb =  obj_emb / LA.norm(obj_emb)
+                obj_emb = obj_emb / LA.norm(obj_emb)
             if args.strategy == 'all-layer-embedding-average':
                 # embedding average
                 obj_emb = np.array([token['layers'][0]['values'] + token['layers'][1]['values'] \
-                 + token['layers'][2]['values'] + token['layers'][3]['values'] for token in obj['features']], dtype='float32')
+                                    + token['layers'][2]['values'] + token['layers'][3]['values'] for token in
+                                    obj['features']], dtype='float32')
                 obj_emb = np.sum(obj_emb, axis=0)
-                obj_emb =  obj_emb / LA.norm(obj_emb)
+                obj_emb = obj_emb / LA.norm(obj_emb)
             elif args.strategy == 'top-layer-max-pool':
                 # top layer max pooling
                 obj_emb = np.array([token['layers'][0]['values'] for token in obj['features']], dtype='float32')
@@ -144,19 +150,22 @@ if __name__=='__main__':
             elif args.strategy == 'all-layer-concat-mean-pooling':
                 # all-layer-concat-mean-pooling
                 obj_emb = np.array([token['layers'][0]['values'] + token['layers'][1]['values'] \
-                 + token['layers'][2]['values'] + token['layers'][3]['values'] for token in obj['features']], dtype='float32')
+                                    + token['layers'][2]['values'] + token['layers'][3]['values'] for token in
+                                    obj['features']], dtype='float32')
                 obj_emb = np.mean(obj_emb, axis=0)
             elif args.strategy == 'all-layer-concat-max-pooling':
                 # all-layer-concat-mean-pooling
                 obj_emb = np.array([token['layers'][0]['values'] + token['layers'][1]['values'] \
-                 + token['layers'][2]['values'] + token['layers'][3]['values'] for token in obj['features']], dtype='float32')
+                                    + token['layers'][2]['values'] + token['layers'][3]['values'] for token in
+                                    obj['features']], dtype='float32')
                 obj_emb = np.max(obj_emb, axis=0)
             elif args.strategy == 'all-layer-mean-max-pooling':
                 # all-layer-mean-max-pooling
                 obj_emb = []
                 for token in obj['features']:
-                    temp = np.mean(np.array([token['layers'][0]['values'], token['layers'][1]['values'], 
-                    token['layers'][2]['values'], token['layers'][3]['values']], dtype='float32'), axis=0)
+                    temp = np.mean(np.array([token['layers'][0]['values'], token['layers'][1]['values'],
+                                             token['layers'][2]['values'], token['layers'][3]['values']],
+                                            dtype='float32'), axis=0)
                     obj_emb.append(temp)
                 obj_emb = np.array(obj_emb)
                 obj_emb = np.max(obj_emb, axis=0)
@@ -164,35 +173,36 @@ if __name__=='__main__':
                 # all-layer-mean-max-pooling
                 obj_emb = []
                 for token in obj['features']:
-                    temp = np.max(np.array([token['layers'][0]['values'], token['layers'][1]['values'], 
-                    token['layers'][2]['values'], token['layers'][3]['values']], dtype='float32'), axis=0)
+                    temp = np.max(np.array([token['layers'][0]['values'], token['layers'][1]['values'],
+                                            token['layers'][2]['values'], token['layers'][3]['values']],
+                                           dtype='float32'), axis=0)
                     obj_emb.append(temp)
                 obj_emb = np.array(obj_emb)
                 obj_emb = np.max(obj_emb, axis=0)
             elif args.strategy == 'all-layer-concat-vector-extrema':
                 # all-layer-concat-max-pooling
-                obj_emb = np.array([token['layers'][0]['values'] + token['layers'][1]['values'] + 
-                    token['layers'][2]['values'] + token['layers'][3]['values'] for token in obj['features']], dtype='float32')
+                obj_emb = np.array([token['layers'][0]['values'] + token['layers'][1]['values'] +
+                                    token['layers'][2]['values'] + token['layers'][3]['values'] for token in
+                                    obj['features']], dtype='float32')
                 obj_emb = absmaxND(obj_emb, axis=0)
             elif args.strategy == 'top-layer-concat-vector-extrema':
-                 # top-layer-vector-extrema
-                 obj_emb = np.array([token['layers'][0]['values'] for token in obj['features']], dtype='float32')
-                 obj_emb = absmaxND(obj_emb, axis=0)
+                # top-layer-vector-extrema
+                obj_emb = np.array([token['layers'][0]['values'] for token in obj['features']], dtype='float32')
+                obj_emb = absmaxND(obj_emb, axis=0)
             elif args.strategy == 'all-layer-addition-max-pooling':
-                 # all-layer-addition-max-pooling
-                 obj_emb = []
-                 for token in obj['features']:
-                     temp = np.array([token['layers'][0]['values'], token['layers'][1]['values'], 
-                     token['layers'][2]['values'], token['layers'][3]['values']], dtype='float32')
-                     temp = np.sum(temp, axis=0)
-                     obj_emb.append(temp)
-                 obj_emb = np.array(obj_emb)
-                 obj_emb = np.max(obj_emb, axis=0)  
+                # all-layer-addition-max-pooling
+                obj_emb = []
+                for token in obj['features']:
+                    temp = np.array([token['layers'][0]['values'], token['layers'][1]['values'],
+                                     token['layers'][2]['values'], token['layers'][3]['values']], dtype='float32')
+                    temp = np.sum(temp, axis=0)
+                    obj_emb.append(temp)
+                obj_emb = np.array(obj_emb)
+                obj_emb = np.max(obj_emb, axis=0)
             ref_sent_embedding.append(obj_emb)
             tq.update(1)
     tq.close()
     logging.info("Done loading references features ---------------------------------------------------")
-
 
     logging.info("rearranging test cases -------------------------------------------------------------")
     hyp_per_all_sys = []
@@ -202,9 +212,9 @@ if __name__=='__main__':
         if (i + 1) % 2000 == 0:
             hyp_per_all_sys.append(hyp_per_sys)
             hyp_per_sys = []
-    
+
     hyp_per_dialogues = []
-    hyp_per_single_dialogue =[]
+    hyp_per_single_dialogue = []
     for i, item in enumerate(hyp_per_all_sys[0]):
         hyp_per_single_dialogue.append(item)
         hyp_per_single_dialogue.append(hyp_per_all_sys[1][i])
@@ -240,7 +250,7 @@ if __name__=='__main__':
             ref_per_sys = []
 
     ref_per_dialogues = []
-    ref_per_single_dialogue =[]
+    ref_per_single_dialogue = []
     for i, item in enumerate(ref_per_all_sys[0]):
         ref_per_single_dialogue.append(item)
         ref_per_single_dialogue.append(ref_per_all_sys[1][i])
@@ -269,6 +279,3 @@ if __name__=='__main__':
     logging.info('The final system level scores:')
     for score in system_level_scores.tolist():
         print(score)
-
-    
-    

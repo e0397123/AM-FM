@@ -18,13 +18,14 @@ sc = set(['-', "'", '%', '#', '@', '<', '>'])
 to_remove = ''.join([c for c in string.punctuation if c not in sc])
 table = dict((ord(char), u'') for char in to_remove)
 
+
 def preProcess(s):
     if len(s) == 0:  # To avoid empty lines
         return '_EMPTY_'
 
     # Remove some punctuation
     s = s.translate(table)
-        
+
     tokens = s.split()
 
     new_tokens = []
@@ -38,6 +39,7 @@ def preProcess(s):
 
     s = ' '.join(new_tokens).lower()
     return s
+
 
 train_lines = []
 
@@ -53,7 +55,7 @@ for line in tqdm(train_lines):
     for token in splitted_line:
         vocab[token] += 1
 
-sorted_d = dict(sorted(vocab.items(), key=operator.itemgetter(1),reverse=True))
+sorted_d = dict(sorted(vocab.items(), key=operator.itemgetter(1), reverse=True))
 
 logging.info("sorted vocab in descending order: ")
 for i, (k, v) in enumerate(sorted_d.items()):
@@ -67,4 +69,3 @@ with codecs.open(args.vocab_file, mode='w', encoding='utf-8') as wf:
 for k in sorted_d.keys():
     with codecs.open(args.vocab_file, mode='a', encoding='utf-8') as wf:
         wf.write(k + '\n')
-        
