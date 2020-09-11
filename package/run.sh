@@ -7,7 +7,7 @@
 #SBATCH --output=compute.log
 
 
-stage=7
+stage=1
 stop_stage=7
 
 # config files
@@ -120,7 +120,7 @@ if [ ${stage} -le 4 ] && [ ${stop_stage} -ge 4 ]; then
 fi
 
 if [ ${stage} -le 5 ] && [ ${stop_stage} -ge 5 ]; then
-    echo "stage 4: Compute hypothesis sentence-level probability"
+    echo "stage 5: Compute reference sentence-level probability"
     /home/jiadong/anaconda3/envs/tensorflow-1.15/bin/python ./FM/eval.py \
         --data_path=${ref_path} \
         --model_path=${fm_model_path} \
