@@ -127,7 +127,9 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
-
+*data*
+*models*
+*result*
 data/
 engines/embedding_models/bert/__pycache__/
 engines/embedding_models/bert/models*
