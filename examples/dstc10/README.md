@@ -1,3 +1,3 @@
-## DSTC10 Automatic Evaluation and Moderation of Open-domain Dialogue Systems Track 1
+## DSTC10 Automatic Evaluation of Open-domain Dialogue Systems
 
 
